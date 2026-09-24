@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Đăng nhập - Hotel Management</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <div class="login-box">
+
+            <div class="login-header">
+                <h1>HOTEL</h1>
+                <p>Hệ thống quản lý khách sạn</p>
+            </div>
+
+            <form>
+
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Nhập tên đăng nhập"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Nhập mật khẩu"
+                    >
+                </div>
+
+                
+                <div class="form-group">
+                <label for="role">Vai trò</label>
+
+                <select id="role" name="role">
+                    <option value="">Vai Trò</option>
+                    <option value="admin">Admin</option>
+                    <option value="receptionist">Lễ tân</option>
+                    <option value="accountant">Kế toán</option>
+                    <option value="guest">Khách hàng</option>
+                </select>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Đăng nhập
+                </button>
+
+            </form>
+
+            <div class="login-footer">
+                <a href="#">Quên mật khẩu?</a>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

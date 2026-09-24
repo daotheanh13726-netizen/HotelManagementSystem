@@ -15,19 +15,51 @@ namespace HotelManagementSystem.API.Data
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Guest> Guests { get; set; }
 
+        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<ReservationRoom> ReservationRooms { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Bảng loại phòng
+            // Loại phòng
             modelBuilder.Entity<RoomType>()
                 .ToTable("LoaiPhong");
 
-            // Bảng phòng
+            // Phòng
             modelBuilder.Entity<Room>()
                 .ToTable("Phong");
 
-            // Bảng khách hàng
+            // Khách hàng
             modelBuilder.Entity<Guest>()
                 .ToTable("KhachHang");
+
+            // Đặt phòng
+            modelBuilder.Entity<Reservation>()
+                .ToTable("DatPhong");
+
+            // Chi tiết đặt phòng
+            modelBuilder.Entity<ReservationRoom>()
+                .ToTable("ChiTietDatPhong");
+
+            // Reservation -> Guest
+            modelBuilder.Entity<Reservation>()
+                .HasOne<Guest>()
+                .WithMany()
+                .HasForeignKey(r => r.GuestId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ReservationRoom -> Reservation
+            modelBuilder.Entity<ReservationRoom>()
+                .HasOne<Reservation>()
+                .WithMany()
+                .HasForeignKey(rr => rr.ReservationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ReservationRoom -> Room
+            modelBuilder.Entity<ReservationRoom>()
+                .HasOne<Room>()
+                .WithMany()
+                .HasForeignKey(rr => rr.RoomId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

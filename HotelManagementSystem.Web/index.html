@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hotel Management System</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Thanh menu bên trái -->
+    <aside class="sidebar">
+
+        <h2>HOTEL</h2>
+
+        <nav>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#">Phòng</a>
+            <a href="#">Loại phòng</a>
+            <a href="#">Khách hàng</a>
+            <a href="#">Đặt phòng</a>
+            <a href="#">Dịch vụ</a>
+            <a href="#">Hóa đơn</a>
+        </nav>
+
+    </aside>
+
+
+    <!-- Nội dung chính -->
+    <main class="main-content">
+
+        <header class="header">
+            <h1>Quản lý khách sạn</h1>
+
+            <div class="user-info">
+                Xin chào, Admin
+            </div>
+        </header>
+
+
+        <section class="content">
+
+            <div class="page-title">
+                <div>
+                    <h2>Khách hàng</h2>
+                    <p>Quản lý thông tin khách hàng</p>
+                </div>
+
+                <button class="btn-primary">
+                    + Thêm khách hàng
+                </button>
+            </div>
+
+
+            <!-- Thanh tìm kiếm -->
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    placeholder="Tìm kiếm khách hàng..."
+                >
+
+                <button class="btn-search">
+                    Tìm kiếm
+                </button>
+
+            </div>
+
+
+            <!-- Bảng khách hàng -->
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ tên</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>CCCD</th>
+                            <th>Địa chỉ</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr>
+                            <td>1</td>
+                            <td>Nguyen Van Manh</td>
+                            <td>096321423</td>
+                            <td>mahg@gmail.com</td>
+                            <td>03020014257</td>
+                            <td>Hai Phong</td>
+
+                            <td>
+                                <button class="btn-edit">
+                                    Sửa
+                                </button>
+
+                                <button class="btn-delete">
+                                    Xóa
+                                </button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="js/app.js"></script>
+
+</body>
+</html>
