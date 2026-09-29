@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Khách hàng - Hotel Management</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <h2>Hotel Management</h2>
+
+            <ul class="menu">
+
+    <li class="active">
+        <a href="khach.html">Trang chủ</a>
+    </li>
+
+    <li>
+        <a href="phong.html">Xem phòng</a>
+    </li>
+
+    <li>
+        <a href="datphong.html">Đặt phòng</a>
+    </li>
+
+    <li>
+        <a href="#">Đặt phòng của tôi</a>
+    </li>
+
+    <li>
+        <a href="#">Thông tin cá nhân</a>
+    </li>
+
+</ul>
+
+        </aside>
+
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+
+            <header class="topbar">
+
+                <div>
+                    <h1>Xin chào, Khách hàng</h1>
+                    <p>Chào mừng bạn đến với hệ thống quản lý khách sạn</p>
+                </div>
+
+                <div class="user-info">
+                    <span>Tài khoản khách</span>
+                </div>
+
+            </header>
+
+
+            <!-- Thống kê -->
+            <section class="dashboard-cards">
+
+                <div class="dashboard-card">
+                    <h3>Đặt phòng đang chờ</h3>
+                    <strong>1</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Đặt phòng đã xác nhận</h3>
+                    <strong>2</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Đang lưu trú</h3>
+                    <strong>1</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Lịch sử đặt phòng</h3>
+                    <strong>5</strong>
+                </div>
+
+            </section>
+
+
+            <!-- Phòng nổi bật -->
+            <section class="content-section">
+
+                <div class="table-container">
+
+                    <h2>Phòng có thể đặt</h2>
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Số phòng</th>
+                                <th>Loại phòng</th>
+                                <th>Giá / đêm</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>101</td>
+                                <td>Standard</td>
+                                <td>500.000 đ</td>
+                                <td>
+                                    <span class="status available">
+                                        Còn phòng
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-edit">
+                                        Đặt phòng
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>102</td>
+                                <td>Deluxe</td>
+                                <td>800.000 đ</td>
+                                <td>
+                                    <span class="status available">
+                                        Còn phòng
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-edit">
+                                        Đặt phòng
+                                    </button>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>201</td>
+                                <td>Suite</td>
+                                <td>1.200.000 đ</td>
+                                <td>
+                                    <span class="status available">
+                                        Còn phòng
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn-edit">
+                                        Đặt phòng
+                                    </button>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

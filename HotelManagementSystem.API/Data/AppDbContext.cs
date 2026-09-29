@@ -17,6 +17,8 @@ namespace HotelManagementSystem.API.Data
 
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<ReservationRoom> ReservationRooms { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,6 +41,13 @@ namespace HotelManagementSystem.API.Data
             // Chi tiết đặt phòng
             modelBuilder.Entity<ReservationRoom>()
                 .ToTable("ChiTietDatPhong");
+            modelBuilder.Entity<Role>().ToTable("VaiTro");
+            modelBuilder.Entity<User>().ToTable("NguoiDung");
+            modelBuilder.Entity<User>()
+                .HasOne<Role>()
+                .WithMany()
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Reservation -> Guest
             modelBuilder.Entity<Reservation>()

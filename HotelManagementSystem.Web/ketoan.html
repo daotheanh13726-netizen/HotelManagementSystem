@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Kế toán - Hotel Management</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <h2>Hotel Management</h2>
+
+            <ul class="menu">
+
+                <li class="active">
+                    <a href="ketoan.html">Tổng quan</a>
+                </li>
+
+                <li>
+                    <a href="hoadon.html">Hóa đơn</a>
+                </li>
+
+                <li>
+                    <a href="#">Thanh toán</a>
+                </li>
+
+                <li>
+                    <a href="#">Doanh thu</a>
+                </li>
+
+                <li>
+                    <a href="#">Báo cáo</a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- Nội dung -->
+        <main class="main-content">
+
+            <header class="topbar">
+
+                <div>
+                    <h1>Tổng quan kế toán</h1>
+                    <p>Quản lý hóa đơn, thanh toán và doanh thu</p>
+                </div>
+
+                <div class="user-info">
+                    <span>Xin chào, Kế toán</span>
+                </div>
+
+            </header>
+
+
+            <!-- Thống kê -->
+            <section class="dashboard-cards">
+
+                <div class="dashboard-card">
+                    <h3>Hóa đơn hôm nay</h3>
+                    <strong>8</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Đã thanh toán</h3>
+                    <strong>6</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Chưa thanh toán</h3>
+                    <strong>2</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Doanh thu hôm nay</h3>
+                    <strong>12.500.000 đ</strong>
+                </div>
+
+            </section>
+
+
+            <!-- Hóa đơn gần đây -->
+            <section class="content-section">
+
+                <div class="table-container">
+
+                    <h2>Hóa đơn gần đây</h2>
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Mã hóa đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Số tiền</th>
+                                <th>Ngày lập</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>HD001</td>
+                                <td>Nguyễn Văn An</td>
+                                <td>5.500.000 đ</td>
+                                <td>20/09/2026</td>
+                                <td>
+                                    <span class="status available">
+                                        Đã thanh toán
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>HD002</td>
+                                <td>Trần Văn Bình</td>
+                                <td>3.200.000 đ</td>
+                                <td>21/09/2026</td>
+                                <td>
+                                    <span class="status">
+                                        Chưa thanh toán
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

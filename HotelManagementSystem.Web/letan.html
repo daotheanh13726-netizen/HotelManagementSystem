@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Lễ tân - Hotel Management</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="dashboard">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+
+            <h2>Hotel Management</h2>
+
+            <ul class="menu">
+
+                <li class="active">
+                    <a href="letan.html">Tổng quan</a>
+                </li>
+
+                <li>
+                    <a href="phong.html">Phòng</a>
+                </li>
+
+                <li>
+                    <a href="khachhang.html">Khách hàng</a>
+                </li>
+
+                <li>
+                    <a href="datphong.html">Đặt phòng</a>
+                </li>
+
+                <li>
+                    <a href="#">Check-in</a>
+                </li>
+
+                <li>
+                    <a href="#">Check-out</a>
+                </li>
+
+                <li>
+                    <a href="dichvu.html">Dịch vụ</a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+
+            <header class="topbar">
+
+                <div>
+                    <h1>Tổng quan lễ tân</h1>
+                    <p>Quản lý khách và đặt phòng trong ngày</p>
+                </div>
+
+                <div class="user-info">
+                    <span>Xin chào, Lễ tân</span>
+                </div>
+
+            </header>
+
+
+            <!-- Thống kê -->
+            <section class="dashboard-cards">
+
+                <div class="dashboard-card">
+                    <h3>Phòng trống</h3>
+                    <strong>12</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Đặt phòng hôm nay</h3>
+                    <strong>5</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Check-in hôm nay</h3>
+                    <strong>3</strong>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>Check-out hôm nay</h3>
+                    <strong>2</strong>
+                </div>
+
+            </section>
+
+
+            <!-- Công việc trong ngày -->
+            <section class="content-section">
+
+                <div class="table-container">
+
+                    <h2>Công việc trong ngày</h2>
+
+                    <table>
+
+                        <thead>
+                            <tr>
+                                <th>Mã đặt phòng</th>
+                                <th>Khách hàng</th>
+                                <th>Phòng</th>
+                                <th>Check-in</th>
+                                <th>Check-out</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr>
+                                <td>DP001</td>
+                                <td>Nguyễn Văn An</td>
+                                <td>102</td>
+                                <td>20/09/2026</td>
+                                <td>23/09/2026</td>
+                                <td>
+                                    <span class="status available">
+                                        Đã xác nhận
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>DP002</td>
+                                <td>Trần Văn Bình</td>
+                                <td>205</td>
+                                <td>21/09/2026</td>
+                                <td>22/09/2026</td>
+                                <td>
+                                    <span class="status available">
+                                        Chờ check-in
+                                    </span>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>
