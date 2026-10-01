@@ -19,7 +19,7 @@ namespace HotelManagementSystem.API.Data
         public DbSet<ReservationRoom> ReservationRooms { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Service> Services { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Loại phòng
@@ -43,6 +43,7 @@ namespace HotelManagementSystem.API.Data
                 .ToTable("ChiTietDatPhong");
             modelBuilder.Entity<Role>().ToTable("VaiTro");
             modelBuilder.Entity<User>().ToTable("NguoiDung");
+            modelBuilder.Entity<Service>().ToTable("DichVu");
             modelBuilder.Entity<User>()
                 .HasOne<Role>()
                 .WithMany()
