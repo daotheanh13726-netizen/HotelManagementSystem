@@ -1,5 +1,6 @@
 ﻿using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,7 @@ namespace HotelManagementSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin,Lễ tân")]
     public class CheckOutController : ControllerBase
     {
         private readonly AppDbContext _context;
