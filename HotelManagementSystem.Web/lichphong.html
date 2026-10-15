@@ -1,0 +1,156 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch phòng - Hệ thống quản lý khách sạn</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>HOTEL</h2>
+            <p>Quản lý khách sạn</p>
+        </div>
+
+        <ul class="menu">
+            <li><a href="admin.html">Tổng quan</a></li>
+            <li><a href="phong.html">Phòng</a></li>
+            <li><a href="loaiphong.html">Loại phòng</a></li>
+            <li><a href="banggia.html">Bảng giá</a></li>
+            <li><a href="khachhang.html">Khách hàng</a></li>
+            <li><a href="datphong.html">Đặt phòng</a></li>
+            <li><a href="dichvu.html">Dịch vụ</a></li>
+            <li><a href="hoadon.html">Hóa đơn</a></li>
+            <li><a href="lichphong.html">Lịch phòng</a></li>
+            <li><a href="baocao.html">Báo cáo</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="header">
+            <div class="header-left">
+                <h1>Lịch phòng</h1>
+                <p>Theo dõi tình trạng phòng theo thời gian</p>
+            </div>
+
+            <div class="header-right">
+                <span>Quản trị viên</span>
+            </div>
+        </header>
+
+        <section class="content">
+
+            <div class="content-section">
+
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Tra cứu lịch phòng</h2>
+                        <p>Chọn khoảng thời gian và trạng thái cần xem</p>
+                    </div>
+                </div>
+
+                <div class="form-card">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startDate">Từ ngày</label>
+                            <input type="date" id="startDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate">Đến ngày</label>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="roomStatus">Trạng thái phòng</label>
+                            <select id="roomStatus">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="empty">Trống</option>
+                                <option value="occupied">Đang sử dụng</option>
+                                <option value="maintenance">Bảo trì</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            onclick="searchRoomCalendar()">
+                            Xem lịch phòng
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="content-section">
+
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Danh sách lịch phòng</h2>
+                        <p id="calendarMessage">
+                            Chọn khoảng thời gian để tra cứu lịch phòng.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã phòng</th>
+                                <th>Loại phòng</th>
+                                <th>Ngày</th>
+                                <th>Trạng thái</th>
+                                <th>Mã đặt phòng</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="roomCalendarBody">
+                            <!-- Dữ liệu sẽ lấy từ Backend sau -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    function searchRoomCalendar() {
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        if (!startDate || !endDate) {
+            alert("Vui lòng chọn ngày bắt đầu và ngày kết thúc.");
+            return;
+        }
+
+        if (endDate < startDate) {
+            alert("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+            return;
+        }
+
+        document.getElementById("calendarMessage").textContent =
+            "Chưa có dữ liệu lịch phòng. Dữ liệu sẽ được tải khi kết nối Backend.";
+    }
+</script>
+
+</body>
+</html>
+```

@@ -5,40 +5,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Kế toán - Hotel Management</title>
+    <title>Kế toán - Hệ thống quản lý khách sạn</title>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <div class="dashboard">
+    <div class="layout">
 
-        <!-- Sidebar -->
+        <!-- MENU BÊN TRÁI -->
         <aside class="sidebar">
 
-            <h2>Hotel Management</h2>
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
 
             <ul class="menu">
 
+                <!-- Tổng quan -->
                 <li class="active">
-                    <a href="ketoan.html">Tổng quan</a>
+                    <a href="ketoan.html">
+                        Tổng quan
+                    </a>
                 </li>
 
+                <!-- Hóa đơn -->
                 <li>
-                    <a href="hoadon.html">Hóa đơn</a>
+                    <a href="hoadon.html">
+                        Hóa đơn
+                    </a>
                 </li>
 
+                <!-- Thanh toán -->
                 <li>
-                    <a href="#">Thanh toán</a>
+                    <a href="#">
+                        Thanh toán
+                    </a>
                 </li>
 
+                <!-- Doanh thu -->
                 <li>
-                    <a href="#">Doanh thu</a>
+                    <a href="#">
+                        Doanh thu
+                    </a>
                 </li>
 
+                <!-- Báo cáo -->
                 <li>
-                    <a href="#">Báo cáo</a>
+                    <a href="baocao.html">
+                        Báo cáo
+                    </a>
                 </li>
 
             </ul>
@@ -46,97 +64,137 @@
         </aside>
 
 
-        <!-- Nội dung -->
+        <!-- NỘI DUNG CHÍNH -->
         <main class="main-content">
 
-            <header class="topbar">
+            <!-- HEADER -->
+            <header class="header">
 
-                <div>
+                <div class="header-left">
+
                     <h1>Tổng quan kế toán</h1>
-                    <p>Quản lý hóa đơn, thanh toán và doanh thu</p>
+
+                    <p>
+                        Quản lý hóa đơn, thanh toán và doanh thu
+                    </p>
+
                 </div>
 
-                <div class="user-info">
-                    <span>Xin chào, Kế toán</span>
+                <div class="header-right">
+
+                    <span>
+                        Xin chào, Kế toán
+                    </span>
+
                 </div>
 
             </header>
 
 
-            <!-- Thống kê -->
+            <!-- THỐNG KÊ -->
             <section class="dashboard-cards">
 
+                <!-- Hóa đơn hôm nay -->
                 <div class="dashboard-card">
+
                     <h3>Hóa đơn hôm nay</h3>
-                    <strong>8</strong>
+
+                    <strong id="todayInvoiceCount">
+                        -
+                    </strong>
+
                 </div>
 
+
+                <!-- Đã thanh toán -->
                 <div class="dashboard-card">
+
                     <h3>Đã thanh toán</h3>
-                    <strong>6</strong>
+
+                    <strong id="paidInvoiceCount">
+                        -
+                    </strong>
+
                 </div>
 
+
+                <!-- Chưa thanh toán -->
                 <div class="dashboard-card">
+
                     <h3>Chưa thanh toán</h3>
-                    <strong>2</strong>
+
+                    <strong id="unpaidInvoiceCount">
+                        -
+                    </strong>
+
                 </div>
 
+
+                <!-- Doanh thu hôm nay -->
                 <div class="dashboard-card">
+
                     <h3>Doanh thu hôm nay</h3>
-                    <strong>12.500.000 đ</strong>
+
+                    <strong id="todayRevenue">
+                        -
+                    </strong>
+
                 </div>
 
             </section>
 
 
-            <!-- Hóa đơn gần đây -->
+            <!-- HÓA ĐƠN GẦN ĐÂY -->
             <section class="content-section">
 
-                <div class="table-container">
+                <div class="page-header">
 
-                    <h2>Hóa đơn gần đây</h2>
+                    <div>
 
-                    <table>
+                        <h2>Hóa đơn gần đây</h2>
 
-                        <thead>
-                            <tr>
-                                <th>Mã hóa đơn</th>
-                                <th>Khách hàng</th>
-                                <th>Số tiền</th>
-                                <th>Ngày lập</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
+                        <p>
+                            Danh sách các hóa đơn mới nhất
+                        </p>
 
-                        <tbody>
+                    </div>
 
-                            <tr>
-                                <td>HD001</td>
-                                <td>Nguyễn Văn An</td>
-                                <td>5.500.000 đ</td>
-                                <td>20/09/2026</td>
-                                <td>
-                                    <span class="status available">
-                                        Đã thanh toán
-                                    </span>
-                                </td>
-                            </tr>
+                </div>
 
-                            <tr>
-                                <td>HD002</td>
-                                <td>Trần Văn Bình</td>
-                                <td>3.200.000 đ</td>
-                                <td>21/09/2026</td>
-                                <td>
-                                    <span class="status">
-                                        Chưa thanh toán
-                                    </span>
-                                </td>
-                            </tr>
 
-                        </tbody>
+                <div class="table-card">
 
-                    </table>
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Mã hóa đơn</th>
+
+                                    <th>Khách hàng</th>
+
+                                    <th>Số tiền</th>
+
+                                    <th>Ngày lập</th>
+
+                                    <th>Trạng thái</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <!-- Chưa kết nối Backend nên để trống -->
+                            <tbody id="recentInvoiceTableBody">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 

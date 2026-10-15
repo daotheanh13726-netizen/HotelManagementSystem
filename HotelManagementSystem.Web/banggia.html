@@ -1,0 +1,333 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng giá - Hệ thống quản lý khách sạn</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>HOTEL</h2>
+            <p>Quản lý khách sạn</p>
+        </div>
+
+        <ul class="menu">
+            <li>
+                <a href="admin.html">Tổng quan</a>
+            </li>
+            <li>
+                <a href="phong.html">Phòng</a>
+            </li>
+            <li>
+                <a href="loaiphong.html">Loại phòng</a>
+            </li>
+            <li class="active">
+                <a href="banggia.html">Bảng giá</a>
+            </li>
+            <li>
+                <a href="khachhang.html">Khách hàng</a>
+            </li>
+            <li>
+                <a href="datphong.html">Đặt phòng</a>
+            </li>
+            <li>
+            <a href="lichphong.html">Lịch phòng</a>
+            </li>   
+            <li>
+                <a href="dichvu.html">Dịch vụ</a>
+            </li>
+            <li>
+                <a href="hoadon.html">Hóa đơn</a>
+            </li>
+            <li>
+                <a href="baocao.html">Báo cáo</a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Nội dung chính -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Bảng giá</h1>
+                <p>Quản lý giá phòng theo ngày và mùa</p>
+            </div>
+
+            <div class="header-right">
+                <span>Quản trị viên</span>
+            </div>
+        </header>
+
+        <section class="content">
+
+            <!-- Danh sách bảng giá -->
+            <div class="content-section">
+
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Danh sách bảng giá</h2>
+                        <p>Quản lý mức giá áp dụng cho từng loại phòng</p>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+
+                    <div class="search-box">
+                        <input
+                            type="text"
+                            id="searchRate"
+                            placeholder="Tìm theo loại phòng hoặc mùa..."
+                        >
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        onclick="openRateForm()"
+                    >
+                        Thêm bảng giá
+                    </button>
+
+                </div>
+
+                <!-- Bảng dữ liệu -->
+                <div class="table-container">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Loại phòng</th>
+                                <th>Tên mùa</th>
+                                <th>Từ ngày</th>
+                                <th>Đến ngày</th>
+                                <th>Giá theo đêm</th>
+                                <th>Giá theo giờ</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="rateTableBody">
+                            <!-- Dữ liệu sẽ lấy từ Backend sau -->
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- Form bảng giá -->
+            <div
+                class="content-section"
+                id="rateFormSection"
+                style="display: none;"
+            >
+
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Thêm bảng giá</h2>
+                        <p>Nhập thông tin giá phòng</p>
+                    </div>
+                </div>
+
+                <div class="form-card">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="roomType">
+                                Loại phòng
+                            </label>
+
+                            <select id="roomType">
+                                <option value="">Chọn loại phòng</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seasonName">
+                                Tên mùa
+                            </label>
+
+                            <input
+                                type="text"
+                                id="seasonName"
+                                placeholder="Ví dụ: Mùa cao điểm"
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="startDate">
+                                Từ ngày
+                            </label>
+
+                            <input
+                                type="date"
+                                id="startDate"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate">
+                                Đến ngày
+                            </label>
+
+                            <input
+                                type="date"
+                                id="endDate"
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="nightPrice">
+                                Giá theo đêm
+                            </label>
+
+                            <input
+                                type="number"
+                                id="nightPrice"
+                                min="0"
+                                placeholder="Nhập giá theo đêm"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="hourPrice">
+                                Giá theo giờ
+                            </label>
+
+                            <input
+                                type="number"
+                                id="hourPrice"
+                                min="0"
+                                placeholder="Nhập giá theo giờ"
+                            >
+                        </div>
+
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            class="btn-secondary"
+                            onclick="closeRateForm()"
+                        >
+                            Hủy
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            onclick="saveRate()"
+                        >
+                            Lưu bảng giá
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+    function openRateForm() {
+        document.getElementById("rateFormSection").style.display = "block";
+
+        document.getElementById("rateFormSection").scrollIntoView({
+            behavior: "smooth"
+        });
+    }
+
+    function closeRateForm() {
+        document.getElementById("rateFormSection").style.display = "none";
+    }
+
+    function saveRate() {
+
+        const roomType =
+            document.getElementById("roomType").value;
+
+        const seasonName =
+            document.getElementById("seasonName").value.trim();
+
+        const startDate =
+            document.getElementById("startDate").value;
+
+        const endDate =
+            document.getElementById("endDate").value;
+
+        const nightPrice =
+            document.getElementById("nightPrice").value;
+
+        const hourPrice =
+            document.getElementById("hourPrice").value;
+
+        if (roomType === "") {
+            alert("Vui lòng chọn loại phòng.");
+            return;
+        }
+
+        if (seasonName === "") {
+            alert("Vui lòng nhập tên mùa.");
+            return;
+        }
+
+        if (startDate === "") {
+            alert("Vui lòng chọn ngày bắt đầu.");
+            return;
+        }
+
+        if (endDate === "") {
+            alert("Vui lòng chọn ngày kết thúc.");
+            return;
+        }
+
+        if (endDate < startDate) {
+            alert("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
+            return;
+        }
+
+        if (nightPrice === "" || Number(nightPrice) < 0) {
+            alert("Vui lòng nhập giá theo đêm hợp lệ.");
+            return;
+        }
+
+        if (hourPrice === "" || Number(hourPrice) < 0) {
+            alert("Vui lòng nhập giá theo giờ hợp lệ.");
+            return;
+        }
+
+        alert("Bảng giá sẽ được lưu khi kết nối Backend.");
+
+        closeRateForm();
+    }
+
+</script>
+
+</body>
+</html>
+```

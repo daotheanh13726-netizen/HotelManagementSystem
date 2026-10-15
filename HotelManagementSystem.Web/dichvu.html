@@ -1,0 +1,462 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý dịch vụ - Hệ thống quản lý khách sạn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- MENU BÊN TRÁI -->
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="admin.html">
+                        Tổng quan
+                    </a>
+                </li>
+
+                <li>
+                    <a href="phong.html">
+                        Phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="loaiphong.html">
+                        Loại phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="khachhang.html">
+                        Khách hàng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="datphong.html">
+                        Đặt phòng
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="dichvu.html">
+                        Dịch vụ
+                    </a>
+                </li>
+
+                <li>
+                    <a href="hoadon.html">
+                        Hóa đơn
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- NỘI DUNG CHÍNH -->
+        <main class="main-content">
+
+            <!-- HEADER -->
+            <header class="header">
+
+                <div class="header-left">
+
+                    <h1>Quản lý dịch vụ</h1>
+
+                    <p>
+                        Quản lý các dịch vụ cung cấp cho khách hàng
+                    </p>
+
+                </div>
+
+                <div class="header-right">
+
+                    <span>
+                        Xin chào, Quản trị viên
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- NỘI DUNG -->
+            <section class="content-section">
+
+                <!-- TIÊU ĐỀ -->
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>Danh sách dịch vụ</h2>
+
+                        <p>
+                            Quản lý tên và giá các dịch vụ
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="btn-primary"
+                        onclick="openServiceForm()">
+
+                        + Thêm dịch vụ
+
+                    </button>
+
+                </div>
+
+
+                <!-- TÌM KIẾM -->
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="searchService"
+                        class="search-box"
+                        placeholder="Tìm kiếm dịch vụ..."
+                        onkeyup="searchService()"
+                    >
+
+                </div>
+
+
+                <!-- BẢNG DỊCH VỤ -->
+                <div class="table-card">
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>ID</th>
+
+                                    <th>Tên dịch vụ</th>
+
+                                    <th>Đơn giá</th>
+
+                                    <th>Thao tác</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <!-- Chưa kết nối Backend nên để trống -->
+                            <tbody id="serviceTableBody">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- FORM THÊM / SỬA -->
+            <div
+                id="serviceModal"
+                class="modal">
+
+                <div class="modal-content">
+
+                    <span
+                        class="close"
+                        onclick="closeServiceForm()">
+
+                        &times;
+
+                    </span>
+
+
+                    <h2 id="serviceFormTitle">
+                        Thêm dịch vụ
+                    </h2>
+
+
+                    <form id="serviceForm">
+
+                        <!-- Tên dịch vụ -->
+                        <div class="form-group">
+
+                            <label for="serviceName">
+                                Tên dịch vụ
+                            </label>
+
+                            <input
+                                type="text"
+                                id="serviceName"
+                                placeholder="Nhập tên dịch vụ"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Đơn giá -->
+                        <div class="form-group">
+
+                            <label for="servicePrice">
+                                Đơn giá
+                            </label>
+
+                            <input
+                                type="number"
+                                id="servicePrice"
+                                placeholder="Nhập đơn giá"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Nút -->
+                        <div class="form-actions">
+
+                            <button
+                                type="button"
+                                class="btn-secondary"
+                                onclick="closeServiceForm()">
+
+                                Hủy
+
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="btn-primary">
+
+                                Lưu dịch vụ
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        let editingServiceId = null;
+
+
+        // Mở form thêm dịch vụ
+        function openServiceForm() {
+
+            document
+                .getElementById("serviceModal")
+                .style.display = "flex";
+
+            document
+                .getElementById("serviceFormTitle")
+                .innerText = "Thêm dịch vụ";
+
+            document
+                .getElementById("serviceForm")
+                .reset();
+
+            editingServiceId = null;
+        }
+
+
+        // Đóng form
+        function closeServiceForm() {
+
+            document
+                .getElementById("serviceModal")
+                .style.display = "none";
+
+            document
+                .getElementById("serviceForm")
+                .reset();
+
+            editingServiceId = null;
+        }
+
+
+        // Tìm kiếm dịch vụ
+        function searchService() {
+
+            const keyword =
+                document
+                    .getElementById("searchService")
+                    .value
+                    .toLowerCase()
+                    .trim();
+
+            const rows =
+                document.querySelectorAll(
+                    "#serviceTableBody tr"
+                );
+
+
+            rows.forEach(row => {
+
+                const rowText =
+                    row.textContent.toLowerCase();
+
+
+                if (rowText.includes(keyword)) {
+
+                    row.style.display = "";
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+        }
+
+
+        // Sửa dịch vụ
+        function editService(id) {
+
+            editingServiceId = id;
+
+            document
+                .getElementById("serviceModal")
+                .style.display = "flex";
+
+            document
+                .getElementById("serviceFormTitle")
+                .innerText = "Sửa dịch vụ";
+
+            /*
+             * Khi kết nối Backend,
+             * thông tin dịch vụ sẽ được lấy
+             * theo ID từ API.
+             */
+        }
+
+
+        // Xóa dịch vụ
+        function deleteService(id) {
+
+            const confirmDelete =
+                confirm(
+                    "Bạn có chắc muốn xóa dịch vụ này?"
+                );
+
+
+            if (confirmDelete) {
+
+                alert(
+                    "Chức năng xóa sẽ được thực hiện khi kết nối Backend."
+                );
+
+            }
+
+        }
+
+
+        // Lưu dịch vụ
+        document
+            .getElementById("serviceForm")
+            .addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const name =
+                        document
+                            .getElementById("serviceName")
+                            .value
+                            .trim();
+
+
+                    const price =
+                        document
+                            .getElementById("servicePrice")
+                            .value;
+
+
+                    if (name === "") {
+
+                        alert(
+                            "Vui lòng nhập tên dịch vụ."
+                        );
+
+                        return;
+                    }
+
+
+                    if (price === "" || Number(price) < 0) {
+
+                        alert(
+                            "Vui lòng nhập đơn giá hợp lệ."
+                        );
+
+                        return;
+                    }
+
+
+                    if (editingServiceId === null) {
+
+                        alert(
+                            "Đã nhập thông tin dịch vụ: "
+                            + name
+                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
+                        );
+
+                    } else {
+
+                        alert(
+                            "Đã cập nhật thông tin dịch vụ: "
+                            + name
+                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
+                        );
+
+                    }
+
+
+                    closeServiceForm();
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>
+```

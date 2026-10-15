@@ -1,0 +1,535 @@
+ <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in - Hotel Management System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Hotel Management</h2>
+        <ul>
+            <li><a href="letan.html">Tổng quan</a></li>
+            <li><a href="phong.html">Quản lý phòng</a></li>
+            <li><a href="khachhang.html">Khách hàng</a></li>
+            <li><a href="datphong.html">Đặt phòng</a></li>
+            <li><a href="checkin.html" class="active">Check-in</a></li>
+            <li><a href="lichphong.html">Lịch phòng</a></li>
+            <li><a href="checkout.html">Check-out</a></li>
+            <li><a href="dichvu.html">Dịch vụ</a></li>
+            <li><a href="hoadon.html">Hóa đơn</a></li>
+            <li><a href="dangnhap.html" id="logoutLink">Đăng xuất</a></li>
+        </ul>
+    </div>
+
+    <main class="main-content">
+        <header class="page-header">
+            <h1>Quản lý Check-in</h1>
+            <p>Tiếp nhận khách và xác nhận nhận phòng</p>
+        </header>
+
+        <section class="content-section">
+            <div class="section-header">
+                <h2>Danh sách đặt phòng</h2>
+                <button type="button" class="btn-primary" id="refreshButton">
+                    Tải lại danh sách
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="searchInput">Tìm theo mã đặt phòng</label>
+                <div class="search-container">
+                    <input
+                        type="text"
+                        id="searchInput"
+                        placeholder="Nhập mã đặt phòng..."
+                    >
+                    <button type="button" class="btn-primary" id="searchButton">
+                        Tìm kiếm
+                    </button>
+                    <button type="button" class="btn-secondary" id="clearSearchButton">
+                        Xóa tìm kiếm
+                    </button>
+                </div>
+            </div>
+
+            <p id="pageMessage" role="status" aria-live="polite"></p>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đặt phòng</th>
+                            <th>Khách hàng</th>
+                            <th>Phòng</th>
+                            <th>Ngày nhận</th>
+                            <th>Ngày trả</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="checkInTableBody">
+                        <tr>
+                            <td colspan="7">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="content-section" id="checkInFormSection" hidden>
+            <div class="section-header">
+                <h2>Xác nhận Check-in</h2>
+                <button type="button" class="btn-secondary" id="closeFormButton">
+                    Đóng
+                </button>
+            </div>
+
+            <form id="checkInForm">
+                <input type="hidden" id="bookingId">
+
+                <div class="form-group">
+                    <label for="guestName">Khách hàng</label>
+                    <input type="text" id="guestName" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="roomNumber">Phòng đã được gán</label>
+                    <input type="text" id="roomNumber" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="checkInDate">Ngày nhận phòng dự kiến</label>
+                    <input type="text" id="checkInDate" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="numberOfGuests">Số khách</label>
+                    <input type="number" id="numberOfGuests" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="note">Ghi chú đặt phòng</label>
+                    <textarea id="note" rows="3" readonly></textarea>
+                </div>
+
+                <p>
+                    Khi xác nhận, hệ thống sẽ ghi nhận thời gian check-in thực tế
+                    tại Backend.
+                </p>
+
+                <button type="submit" class="btn-primary" id="confirmCheckInButton">
+                    Xác nhận Check-in
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE_URL = "https://localhost:44365/api";
+
+        let reservations = [];
+        let reservationDetails = [];
+        let selectedReservation = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("refreshButton")
+                .addEventListener("click", loadReservations);
+
+            document.getElementById("searchButton")
+                .addEventListener("click", searchReservations);
+
+            document.getElementById("clearSearchButton")
+                .addEventListener("click", () => {
+                    document.getElementById("searchInput").value = "";
+                    renderReservations(reservationDetails);
+                });
+
+            document.getElementById("searchInput")
+                .addEventListener("keydown", event => {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        searchReservations();
+                    }
+                });
+
+            document.getElementById("closeFormButton")
+                .addEventListener("click", closeCheckInForm);
+
+            document.getElementById("checkInForm")
+                .addEventListener("submit", confirmCheckIn);
+
+            document.getElementById("logoutLink")
+                .addEventListener("click", () => {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("userId");
+                    localStorage.removeItem("username");
+                    localStorage.removeItem("fullName");
+                    localStorage.removeItem("roleName");
+                });
+
+            loadReservations();
+        });
+
+        async function apiRequest(url, options = {}) {
+            const token = localStorage.getItem("token");
+
+            if (!token) {
+                throw new Error("Bạn chưa đăng nhập. Vui lòng đăng nhập lại.");
+            }
+
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...(options.headers || {}),
+                    "Authorization": `Bearer ${token}`,
+                    ...(options.body ? { "Content-Type": "application/json" } : {})
+                }
+            });
+
+            const text = await response.text();
+            let result = null;
+
+            if (text) {
+                try {
+                    result = JSON.parse(text);
+                } catch {
+                    result = text;
+                }
+            }
+
+            if (response.status === 401) {
+                throw new Error("Phiên đăng nhập đã hết hạn hoặc token không hợp lệ. Hãy đăng nhập lại.");
+            }
+
+            if (response.status === 403) {
+                throw new Error("Tài khoản của bạn không có quyền thực hiện thao tác này.");
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    result?.message ||
+                    (typeof result === "string" ? result : "") ||
+                    `Yêu cầu thất bại (${response.status}).`
+                );
+            }
+
+            return result;
+        }
+
+        function getList(result) {
+            if (Array.isArray(result)) return result;
+            if (Array.isArray(result?.data)) return result.data;
+            return [];
+        }
+
+        function getField(object, ...keys) {
+            for (const key of keys) {
+                if (object && object[key] !== undefined && object[key] !== null) {
+                    return object[key];
+                }
+            }
+            return null;
+        }
+
+        function formatDate(value) {
+            if (!value) return "—";
+
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return String(value);
+
+            return date.toLocaleDateString("vi-VN");
+        }
+
+        function getStatusText(status) {
+            if (typeof status === "string") {
+                const normalized = status.trim().toLowerCase();
+
+                const labels = {
+                    "dahuy": "Đã hủy",
+                    "dacheckin": "Đã check-in",
+                    "dacheckout": "Đã check-out",
+                    "choxacnhan": "Chờ xác nhận",
+                    "dadat": "Đã đặt"
+                };
+
+                return labels[normalized.replace(/\s/g, "")] || status;
+            }
+
+            return status === null || status === undefined
+                ? "Không xác định"
+                : `Trạng thái ${status}`;
+        }
+
+        function isAlreadyCheckedIn(reservation) {
+            const status = getField(reservation, "status", "Status");
+            return typeof status === "string" &&
+                status.toLowerCase().replace(/\s/g, "") === "dacheckin";
+        }
+
+        function isNotEligible(reservation) {
+            const status = getField(reservation, "status", "Status");
+
+            if (typeof status !== "string") {
+                // Backend sẽ kiểm tra trạng thái thực tế khi gọi API check-in.
+                return false;
+            }
+
+            const normalized = status.toLowerCase().replace(/\s/g, "");
+            return ["dahuy", "dacheckin", "dacheckout"].includes(normalized);
+        }
+
+        async function loadReservations() {
+            const tbody = document.getElementById("checkInTableBody");
+            tbody.innerHTML = '<tr><td colspan="7">Đang tải dữ liệu...</td></tr>';
+            setMessage("");
+
+            try {
+                const result = await apiRequest(
+                    `${API_BASE_URL}/Reservation?page=1&pageSize=100`
+                );
+
+                reservations = getList(result);
+
+                // Lấy chi tiết phòng, khách và thông tin đặt phòng.
+                const details = await Promise.all(
+                    reservations.map(async reservation => {
+                        try {
+                            const reservationId = getField(reservation, "id", "Id");
+                            const guestId = getField(reservation, "guestId", "GuestId");
+
+                            const [guestResult, reservationRoomResult] = await Promise.all([
+                                guestId
+                                    ? apiRequest(`${API_BASE_URL}/Guest/${guestId}`)
+                                    : Promise.resolve(null),
+                                apiRequest(
+                                    `${API_BASE_URL}/ReservationRoom?reservationId=${reservationId}`
+                                )
+                            ]);
+
+                            const guest = guestResult?.data ?? guestResult;
+                            const assignedRooms = getList(reservationRoomResult);
+                            const assignedRoom = assignedRooms[0] || null;
+
+                            let room = null;
+
+                            if (assignedRoom) {
+                                const roomId = getField(assignedRoom, "roomId", "RoomId");
+
+                                if (roomId !== null) {
+                                    const roomResult = await apiRequest(
+                                        `${API_BASE_URL}/Room/${roomId}`
+                                    );
+                                    room = roomResult?.data ?? roomResult;
+                                }
+                            }
+
+                            return {
+                                reservation,
+                                guest,
+                                assignedRoom,
+                                room,
+                                loadError: null
+                            };
+                        } catch (error) {
+                            console.error("Không tải được chi tiết đặt phòng:", error);
+
+                            return {
+                                reservation,
+                                guest: null,
+                                assignedRoom: null,
+                                room: null,
+                                loadError: error.message
+                            };
+                        }
+                    })
+                );
+
+                reservationDetails = details;
+                renderReservations(details);
+
+                if (details.some(item => item.loadError)) {
+                    setMessage(
+                        "Một số thông tin chi tiết chưa tải được. Kiểm tra quyền truy cập API và dữ liệu gán phòng.",
+                        true
+                    );
+                }
+            } catch (error) {
+                console.error("Lỗi tải danh sách đặt phòng:", error);
+                tbody.innerHTML =
+                    `<tr><td colspan="7">${escapeHtml(error.message)}</td></tr>`;
+                setMessage(error.message, true);
+            }
+        }
+
+        function renderReservations(items) {
+            const tbody = document.getElementById("checkInTableBody");
+            tbody.innerHTML = "";
+
+            if (!items.length) {
+                tbody.innerHTML =
+                    '<tr><td colspan="7">Không có dữ liệu đặt phòng.</td></tr>';
+                return;
+            }
+
+            items.forEach(item => {
+                const reservation = item.reservation;
+                const reservationId = getField(reservation, "id", "Id");
+                const code = getField(reservation, "reservationCode", "ReservationCode") ?? reservationId;
+                const guestName = getField(item.guest, "fullName", "FullName", "name", "Name") ?? "Chưa có thông tin";
+                const roomNumber = getField(item.room, "roomNumber", "RoomNumber") ?? "Chưa gán phòng";
+                const checkInDate = getField(reservation, "checkInDate", "CheckInDate");
+                const checkOutDate = getField(reservation, "checkOutDate", "CheckOutDate");
+                const status = getField(reservation, "status", "Status");
+                const statusText = getStatusText(status);
+
+                const canCheckIn = !isNotEligible(reservation) &&
+                    !!item.assignedRoom &&
+                    !!item.room &&
+                    !item.loadError;
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${escapeHtml(code)}</td>
+                    <td>${escapeHtml(guestName)}</td>
+                    <td>${escapeHtml(roomNumber)}</td>
+                    <td>${escapeHtml(formatDate(checkInDate))}</td>
+                    <td>${escapeHtml(formatDate(checkOutDate))}</td>
+                    <td>${escapeHtml(statusText)}</td>
+                    <td>
+                        <button
+                            type="button"
+                            class="btn-primary"
+                            data-checkin-id="${escapeHtml(reservationId)}"
+                            ${canCheckIn ? "" : "disabled"}
+                        >
+                            ${isAlreadyCheckedIn(reservation) ? "Đã check-in" : "Check-in"}
+                        </button>
+                    </td>
+                `;
+
+                const button = row.querySelector("[data-checkin-id]");
+                if (button && canCheckIn) {
+                    button.addEventListener("click", () => openCheckInForm(item));
+                }
+
+                tbody.appendChild(row);
+            });
+        }
+
+        function searchReservations() {
+            const keyword = document.getElementById("searchInput")
+                .value.trim().toLowerCase();
+
+            if (!keyword) {
+                renderReservations(reservationDetails);
+                return;
+            }
+
+            const filtered = reservationDetails.filter(item => {
+                const code = getField(
+                    item.reservation,
+                    "reservationCode",
+                    "ReservationCode"
+                );
+
+                return String(code ?? "").toLowerCase().includes(keyword);
+            });
+
+            renderReservations(filtered);
+        }
+
+        function openCheckInForm(item) {
+            selectedReservation = item;
+
+            const reservation = item.reservation;
+
+            document.getElementById("bookingId").value =
+                getField(reservation, "id", "Id");
+
+            document.getElementById("guestName").value =
+                getField(item.guest, "fullName", "FullName", "name", "Name") ?? "";
+
+            document.getElementById("roomNumber").value =
+                getField(item.room, "roomNumber", "RoomNumber") ?? "";
+
+            document.getElementById("checkInDate").value =
+                formatDate(getField(reservation, "checkInDate", "CheckInDate"));
+
+            document.getElementById("numberOfGuests").value =
+                getField(reservation, "numberOfGuests", "NumberOfGuests") ?? "";
+
+            document.getElementById("note").value =
+                getField(reservation, "notes", "Notes") ?? "";
+
+            document.getElementById("checkInFormSection").hidden = false;
+            document.getElementById("checkInFormSection")
+                .scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+
+        function closeCheckInForm() {
+            document.getElementById("checkInFormSection").hidden = true;
+            document.getElementById("checkInForm").reset();
+            selectedReservation = null;
+        }
+
+        async function confirmCheckIn(event) {
+            event.preventDefault();
+
+            if (!selectedReservation) {
+                setMessage("Bạn chưa chọn đơn đặt phòng.", true);
+                return;
+            }
+
+            const reservationId = getField(
+                selectedReservation.reservation,
+                "id",
+                "Id"
+            );
+
+            const button = document.getElementById("confirmCheckInButton");
+            button.disabled = true;
+            button.textContent = "Đang xử lý...";
+
+            try {
+                const result = await apiRequest(
+                    `${API_BASE_URL}/CheckIn/${reservationId}`,
+                    { method: "POST" }
+                );
+
+                setMessage(
+                    result?.message || "Check-in thành công.",
+                    false
+                );
+
+                closeCheckInForm();
+                await loadReservations();
+            } catch (error) {
+                console.error("Lỗi check-in:", error);
+                setMessage(error.message || "Không thể thực hiện check-in.", true);
+            } finally {
+                button.disabled = false;
+                button.textContent = "Xác nhận Check-in";
+            }
+        }
+
+        function setMessage(message, isError = false) {
+            const element = document.getElementById("pageMessage");
+            element.textContent = message;
+            element.style.color = isError ? "#c62828" : "#237a3b";
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? "").replace(/[&<>"']/g, character => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[character]);
+        }
+    </script>
+</body>
+</html>

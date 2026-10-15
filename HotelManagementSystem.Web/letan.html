@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -5,48 +6,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Lễ tân - Hotel Management</title>
+    <title>Lễ tân - Hệ thống quản lý khách sạn</title>
 
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
-    <div class="dashboard">
+    <div class="layout">
 
-        <!-- Sidebar -->
+        <!-- MENU BÊN TRÁI -->
         <aside class="sidebar">
 
-            <h2>Hotel Management</h2>
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
 
             <ul class="menu">
 
                 <li class="active">
-                    <a href="letan.html">Tổng quan</a>
+                    <a href="letan.html">
+                        Tổng quan
+                    </a>
                 </li>
 
                 <li>
-                    <a href="phong.html">Phòng</a>
+                    <a href="phong.html">
+                        Phòng
+                    </a>
                 </li>
 
                 <li>
-                    <a href="khachhang.html">Khách hàng</a>
+                    <a href="khachhang.html">
+                        Khách hàng
+                    </a>
                 </li>
 
                 <li>
-                    <a href="datphong.html">Đặt phòng</a>
+                    <a href="datphong.html">
+                        Đặt phòng
+                    </a>
                 </li>
 
                 <li>
-                    <a href="#">Check-in</a>
+                    <a href="checkin.html">
+                        Check-in
+                    </a>
                 </li>
 
                 <li>
-                    <a href="#">Check-out</a>
+                    <a href="checkout.html">
+                        Check-out
+                    </a>
                 </li>
 
                 <li>
-                    <a href="dichvu.html">Dịch vụ</a>
+                    <a href="lichphong.html">
+                        Lịch phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="dichvu.html">
+                        Dịch vụ
+                    </a>
                 </li>
 
             </ul>
@@ -54,100 +78,126 @@
         </aside>
 
 
-        <!-- Nội dung chính -->
+        <!-- NỘI DUNG CHÍNH -->
         <main class="main-content">
 
-            <header class="topbar">
+            <!-- HEADER -->
+            <header class="header">
 
-                <div>
+                <div class="header-left">
+
                     <h1>Tổng quan lễ tân</h1>
-                    <p>Quản lý khách và đặt phòng trong ngày</p>
+
+                    <p>
+                        Quản lý khách và đặt phòng trong ngày
+                    </p>
+
                 </div>
 
-                <div class="user-info">
-                    <span>Xin chào, Lễ tân</span>
+                <div class="header-right">
+
+                    <span>
+                        Xin chào, Lễ tân
+                    </span>
+
                 </div>
 
             </header>
 
 
-            <!-- Thống kê -->
+            <!-- THỐNG KÊ -->
             <section class="dashboard-cards">
 
                 <div class="dashboard-card">
+
                     <h3>Phòng trống</h3>
-                    <strong>12</strong>
+
+                    <strong id="emptyRoomCount">
+                        -
+                    </strong>
+
                 </div>
 
+
                 <div class="dashboard-card">
+
                     <h3>Đặt phòng hôm nay</h3>
-                    <strong>5</strong>
+
+                    <strong id="todayBookingCount">
+                        -
+                    </strong>
+
                 </div>
 
+
                 <div class="dashboard-card">
+
                     <h3>Check-in hôm nay</h3>
-                    <strong>3</strong>
+
+                    <strong id="todayCheckInCount">
+                        -
+                    </strong>
+
                 </div>
 
+
                 <div class="dashboard-card">
+
                     <h3>Check-out hôm nay</h3>
-                    <strong>2</strong>
+
+                    <strong id="todayCheckOutCount">
+                        -
+                    </strong>
+
                 </div>
 
             </section>
 
 
-            <!-- Công việc trong ngày -->
+            <!-- CÔNG VIỆC TRONG NGÀY -->
             <section class="content-section">
 
-                <div class="table-container">
+                <div class="page-header">
 
-                    <h2>Công việc trong ngày</h2>
+                    <div>
 
-                    <table>
+                        <h2>Công việc trong ngày</h2>
 
-                        <thead>
-                            <tr>
-                                <th>Mã đặt phòng</th>
-                                <th>Khách hàng</th>
-                                <th>Phòng</th>
-                                <th>Check-in</th>
-                                <th>Check-out</th>
-                                <th>Trạng thái</th>
-                            </tr>
-                        </thead>
+                        <p>
+                            Danh sách đặt phòng cần xử lý
+                        </p>
 
-                        <tbody>
+                    </div>
 
-                            <tr>
-                                <td>DP001</td>
-                                <td>Nguyễn Văn An</td>
-                                <td>102</td>
-                                <td>20/09/2026</td>
-                                <td>23/09/2026</td>
-                                <td>
-                                    <span class="status available">
-                                        Đã xác nhận
-                                    </span>
-                                </td>
-                            </tr>
+                </div>
 
-                            <tr>
-                                <td>DP002</td>
-                                <td>Trần Văn Bình</td>
-                                <td>205</td>
-                                <td>21/09/2026</td>
-                                <td>22/09/2026</td>
-                                <td>
-                                    <span class="status available">
-                                        Chờ check-in
-                                    </span>
-                                </td>
-                            </tr>
 
-                        </tbody>
+                <div class="table-card">
 
-                    </table>
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+                                    <th>Mã đặt phòng</th>
+                                    <th>Khách hàng</th>
+                                    <th>Phòng</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+
+                            </thead>
+
+                            <!-- Chưa kết nối Backend nên để trống -->
+                            <tbody id="dailyBookingTableBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
 
                 </div>
 
@@ -160,3 +210,4 @@
 </body>
 
 </html>
+```

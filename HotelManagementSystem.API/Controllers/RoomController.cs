@@ -1,4 +1,5 @@
-﻿using HotelManagementSystem.API.Data;
+﻿
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,18 +19,11 @@ namespace HotelManagementSystem.API.Controllers
             _context = context;
         }
 
-        // =========================================================
         // GET: api/Room
-        //
-        // Ví dụ:
-        // api/Room
-        // api/Room?search=101
-        // api/Room?status=0
-        // api/Room?roomTypeId=1
-        // api/Room?sortBy=RoomNumber&sortOrder=desc
-        // api/Room?page=1&pageSize=5
-        // =========================================================
+        // Khách có thể xem danh sách phòng.
+        // Ví dụ: api/Room?status=0&page=1&pageSize=100
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll(
             string? search,
             RoomStatus? status,
@@ -39,7 +33,6 @@ namespace HotelManagementSystem.API.Controllers
             int page = 1,
             int pageSize = 10)
         {
-            // Kiểm tra trang
             if (page < 1)
             {
                 return BadRequest(new
@@ -48,7 +41,6 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Kiểm tra số bản ghi mỗi trang
             if (pageSize < 1 || pageSize > 100)
             {
                 return BadRequest(new
@@ -57,14 +49,8 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // =====================================================
-            // Tạo truy vấn
-            // =====================================================
-            IQueryable<Room> query = _context.Rooms;
+            IQueryable<Room> query = _context.Rooms.AsNoTracking();
 
-            // =====================================================
-            // TÌM KIẾM THEO SỐ PHÒNG
-            // =====================================================
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
@@ -73,42 +59,30 @@ namespace HotelManagementSystem.API.Controllers
                     r.RoomNumber.Contains(search));
             }
 
-            // =====================================================
-            // LỌC THEO TRẠNG THÁI
-            // =====================================================
             if (status.HasValue)
             {
                 query = query.Where(r =>
                     r.Status == status.Value);
             }
 
-            // =====================================================
-            // LỌC THEO LOẠI PHÒNG
-            // =====================================================
             if (roomTypeId.HasValue)
             {
                 query = query.Where(r =>
                     r.RoomTypeId == roomTypeId.Value);
             }
 
-            // =====================================================
-            // SẮP XẾP
-            // =====================================================
             bool descending =
-                sortOrder?.ToLower() == "desc";
+                string.Equals(
+                    sortOrder,
+                    "desc",
+                    StringComparison.OrdinalIgnoreCase);
 
-            switch (sortBy?.ToLower())
+            switch (sortBy?.ToLowerInvariant())
             {
                 case "id":
                     query = descending
                         ? query.OrderByDescending(r => r.Id)
                         : query.OrderBy(r => r.Id);
-                    break;
-
-                case "roomnumber":
-                    query = descending
-                        ? query.OrderByDescending(r => r.RoomNumber)
-                        : query.OrderBy(r => r.RoomNumber);
                     break;
 
                 case "status":
@@ -123,55 +97,44 @@ namespace HotelManagementSystem.API.Controllers
                         : query.OrderBy(r => r.RoomTypeId);
                     break;
 
+                case "roomnumber":
                 default:
-                    query = query.OrderBy(r => r.RoomNumber);
+                    query = descending
+                        ? query.OrderByDescending(r => r.RoomNumber)
+                        : query.OrderBy(r => r.RoomNumber);
                     break;
             }
 
-            // =====================================================
-            // TỔNG SỐ BẢN GHI
-            // =====================================================
             int totalItems = await query.CountAsync();
 
-            // =====================================================
-            // TÍNH TỔNG SỐ TRANG
-            // =====================================================
-            int totalPages =
-                (int)Math.Ceiling(
-                    totalItems / (double)pageSize);
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
 
-            // =====================================================
-            // PHÂN TRANG
-            // =====================================================
             var rooms = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // =====================================================
-            // KẾT QUẢ
-            // =====================================================
             return Ok(new
             {
                 data = rooms,
                 pagination = new
                 {
                     currentPage = page,
-                    pageSize = pageSize,
-                    totalItems = totalItems,
-                    totalPages = totalPages
+                    pageSize,
+                    totalItems,
+                    totalPages
                 }
             });
         }
 
-        // =========================================================
         // GET: api/Room/1
-        // =========================================================
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var room = await _context.Rooms
-                .FindAsync(id);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if (room == null)
             {
@@ -184,17 +147,24 @@ namespace HotelManagementSystem.API.Controllers
             return Ok(room);
         }
 
-        // =========================================================
         // POST: api/Room
-        // =========================================================
         [HttpPost]
         public async Task<IActionResult> Create(Room room)
         {
-            // Kiểm tra loại phòng
-            var roomType = await _context.RoomTypes
-                .FindAsync(room.RoomTypeId);
+            if (string.IsNullOrWhiteSpace(room.RoomNumber))
+            {
+                return BadRequest(new
+                {
+                    message = "Số phòng không được để trống."
+                });
+            }
 
-            if (roomType == null)
+            room.RoomNumber = room.RoomNumber.Trim();
+
+            var roomTypeExists = await _context.RoomTypes
+                .AnyAsync(t => t.Id == room.RoomTypeId);
+
+            if (!roomTypeExists)
             {
                 return BadRequest(new
                 {
@@ -202,12 +172,10 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Kiểm tra số phòng trùng
-            var existingRoom = await _context.Rooms
-                .AnyAsync(r =>
-                    r.RoomNumber == room.RoomNumber);
+            bool duplicate = await _context.Rooms
+                .AnyAsync(r => r.RoomNumber == room.RoomNumber);
 
-            if (existingRoom)
+            if (duplicate)
             {
                 return BadRequest(new
                 {
@@ -216,22 +184,18 @@ namespace HotelManagementSystem.API.Controllers
             }
 
             _context.Rooms.Add(room);
-
             await _context.SaveChangesAsync();
 
             return Ok(room);
         }
 
-        // =========================================================
         // PUT: api/Room/1
-        // =========================================================
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(
             int id,
             Room room)
         {
-            var existingRoom = await _context.Rooms
-                .FindAsync(id);
+            var existingRoom = await _context.Rooms.FindAsync(id);
 
             if (existingRoom == null)
             {
@@ -241,11 +205,20 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Kiểm tra loại phòng
-            var roomType = await _context.RoomTypes
-                .FindAsync(room.RoomTypeId);
+            if (string.IsNullOrWhiteSpace(room.RoomNumber))
+            {
+                return BadRequest(new
+                {
+                    message = "Số phòng không được để trống."
+                });
+            }
 
-            if (roomType == null)
+            string roomNumber = room.RoomNumber.Trim();
+
+            bool roomTypeExists = await _context.RoomTypes
+                .AnyAsync(t => t.Id == room.RoomTypeId);
+
+            if (!roomTypeExists)
             {
                 return BadRequest(new
                 {
@@ -253,13 +226,12 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Kiểm tra số phòng trùng
-            var duplicateRoom = await _context.Rooms
+            bool duplicate = await _context.Rooms
                 .AnyAsync(r =>
                     r.Id != id &&
-                    r.RoomNumber == room.RoomNumber);
+                    r.RoomNumber == roomNumber);
 
-            if (duplicateRoom)
+            if (duplicate)
             {
                 return BadRequest(new
                 {
@@ -267,7 +239,7 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            existingRoom.RoomNumber = room.RoomNumber;
+            existingRoom.RoomNumber = roomNumber;
             existingRoom.Status = room.Status;
             existingRoom.RoomTypeId = room.RoomTypeId;
 
@@ -276,14 +248,11 @@ namespace HotelManagementSystem.API.Controllers
             return Ok(existingRoom);
         }
 
-        // =========================================================
         // DELETE: api/Room/1
-        // =========================================================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var room = await _context.Rooms
-                .FindAsync(id);
+            var room = await _context.Rooms.FindAsync(id);
 
             if (room == null)
             {
@@ -294,7 +263,6 @@ namespace HotelManagementSystem.API.Controllers
             }
 
             _context.Rooms.Remove(room);
-
             await _context.SaveChangesAsync();
 
             return Ok(new

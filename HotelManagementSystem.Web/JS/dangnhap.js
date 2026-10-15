@@ -1,45 +1,121 @@
-document.getElementById("loginForm").addEventListener("submit", function (event) {
+const AUTH_API_URL = "https://localhost:44365/api/Auth/login";
 
-    event.preventDefault();
+document.addEventListener("DOMContentLoaded", function () {
+    const loginForm = document.getElementById("loginForm");
 
-    const username = document.getElementById("username").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const role = document.getElementById("role").value;
-
-    if (username === "") {
-        alert("Vui lòng nhập tên đăng nhập.");
+    if (!loginForm) {
+        console.error("Không tìm thấy form đăng nhập.");
         return;
     }
 
-    if (password === "") {
-        alert("Vui lòng nhập mật khẩu.");
-        return;
-    }
+    loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
 
-    if (role === "") {
-        alert("Vui lòng chọn vai trò.");
-        return;
-    }
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+        const roleElement = document.getElementById("role");
 
-    // Tạm thời kiểm tra luồng đăng nhập
-    if (role === "admin") {
-    window.location.href = "admin.html";
-    return;
-    }
+        if (!username) {
+            alert("Vui lòng nhập tên đăng nhập.");
+            document.getElementById("username").focus();
+            return;
+        }
 
-    if (role === "receptionist") {
-        window.location.href = "letan.html";
-        return;
-    }
+        if (!password.trim()) {
+            alert("Vui lòng nhập mật khẩu.");
+            document.getElementById("password").focus();
+            return;
+        }
 
-    if (role === "accountant") {
-    window.location.href = "ketoan.html";
-    return;
-    }
+        if (roleElement && !roleElement.value) {
+            alert("Vui lòng chọn vai trò.");
+            roleElement.focus();
+            return;
+        }
 
-     if (role === "guest") {
-    window.location.href = "khach.html";
-    return;
-}
+        const submitButton = loginForm.querySelector(
+            'button[type="submit"], input[type="submit"]'
+        );
 
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+
+        try {
+            const response = await fetch(AUTH_API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(
+                    result.message || "Đăng nhập thất bại."
+                );
+            }
+
+            if (!result.token || !result.roleName) {
+                throw new Error(
+                    "Dữ liệu đăng nhập từ máy chủ không hợp lệ."
+                );
+            }
+
+            // Lưu thông tin phiên đăng nhập để các trang sử dụng.
+            localStorage.setItem("token", result.token);
+            localStorage.setItem("userId", String(result.userId ?? ""));
+            localStorage.setItem("username", result.username ?? username);
+            localStorage.setItem("fullName", result.fullName ?? "");
+            localStorage.setItem("roleName", result.roleName);
+
+            // Điều hướng theo vai trò thực tế từ Backend.
+            const role = result.roleName.trim().toLowerCase();
+
+            switch (role) {
+                case "admin":
+                    window.location.href = "admin.html";
+                    break;
+
+                case "lễ tân":
+                case "letan":
+                    window.location.href = "letan.html";
+                    break;
+
+                case "kế toán":
+                case "ketoan":
+                    window.location.href = "ketoan.html";
+                    break;
+
+                case "khách":
+                case "khach":
+                case "guest":
+                    window.location.href = "khach.html";
+                    break;
+
+                default:
+                    localStorage.removeItem("token");
+                    alert(
+                        "Tài khoản đăng nhập thành công nhưng vai trò chưa được cấu hình giao diện: "
+                        + result.roleName
+                    );
+                    break;
+            }
+        } catch (error) {
+            console.error("Lỗi đăng nhập:", error);
+            alert(
+                error.message ||
+                "Không thể kết nối đến máy chủ. Hãy kiểm tra Backend đang chạy."
+            );
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+            }
+        }
+    });
 });

@@ -1,0 +1,564 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-out - Hệ thống quản lý khách sạn</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="layout">
+    <aside class="sidebar">
+        <div class="logo">
+            <h2>HOTEL</h2>
+            <p>Quản lý khách sạn</p>
+        </div>
+
+        <ul class="menu">
+            <li><a href="letan.html">Tổng quan</a></li>
+            <li><a href="phong.html">Phòng</a></li>
+            <li><a href="khachhang.html">Khách hàng</a></li>
+            <li><a href="datphong.html">Đặt phòng</a></li>
+            <li><a href="checkin.html">Check-in</a></li>
+            <li class="active"><a href="checkout.html">Check-out</a></li>
+            <li><a href="lichphong.html">Lịch phòng</a></li>
+            <li><a href="dichvu.html">Dịch vụ</a></li>
+            <li><a href="hoadon.html">Hóa đơn</a></li>
+            <li><a href="dangnhap.html" id="logoutLink">Đăng xuất</a></li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-left">
+                <h1>Check-out</h1>
+                <p>Quản lý trả phòng cho khách</p>
+            </div>
+            <div class="header-right">
+                <span>Lễ tân</span>
+            </div>
+        </header>
+
+        <section class="content">
+            <div class="content-section">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Danh sách trả phòng</h2>
+                        <p>Danh sách khách đang lưu trú và chờ trả phòng</p>
+                    </div>
+                    <button type="button" class="btn-primary" id="refreshButton">
+                        Tải lại
+                    </button>
+                </div>
+
+                <div class="toolbar">
+                    <div class="search-box">
+                        <input
+                            type="text"
+                            id="searchCheckOut"
+                            placeholder="Tìm theo mã đặt phòng, tên khách hoặc phòng..."
+                        >
+                    </div>
+                </div>
+
+                <p id="pageMessage" role="status" aria-live="polite"></p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mã đặt phòng</th>
+                                <th>Khách hàng</th>
+                                <th>Phòng</th>
+                                <th>Ngày nhận</th>
+                                <th>Ngày trả dự kiến</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checkOutTableBody">
+                            <tr><td colspan="7">Đang tải dữ liệu...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-section" id="checkOutFormSection" style="display:none;">
+                <div class="page-header">
+                    <div>
+                        <h2 class="page-title">Thực hiện Check-out</h2>
+                        <p>Xác nhận trả phòng cho khách đang lưu trú</p>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookingId">Mã đặt phòng</label>
+                            <input type="text" id="bookingId" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="guestName">Khách hàng</label>
+                            <input type="text" id="guestName" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="roomNumber">Phòng</label>
+                            <input type="text" id="roomNumber" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="checkOutDate">Ngày trả dự kiến</label>
+                            <input type="text" id="checkOutDate" readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="minibar">Tiền minibar (VNĐ)</label>
+                            <input
+                                type="number"
+                                id="minibar"
+                                min="0"
+                                step="1000"
+                                value="0"
+                                placeholder="Nhập tiền minibar nếu có"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label for="note">Ghi chú</label>
+                            <input type="text" id="note" placeholder="Ghi chú nếu có">
+                        </div>
+                    </div>
+
+                    <p>
+                        Lưu ý: API Check-out hiện tại chưa lưu tiền minibar hoặc ghi chú.
+                        Hai trường này chỉ dùng để nhập thông tin, chưa được ghi vào hóa đơn.
+                    </p>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelButton">
+                            Hủy
+                        </button>
+                        <button type="button" class="btn-primary" id="confirmButton">
+                            Xác nhận trả phòng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    const API_BASE_URL = "https://localhost:44365/api";
+
+    let checkoutItems = [];
+    let selectedCheckout = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("refreshButton")
+            .addEventListener("click", loadCheckoutList);
+
+        document.getElementById("searchCheckOut")
+            .addEventListener("input", renderCheckoutList);
+
+        document.getElementById("cancelButton")
+            .addEventListener("click", closeCheckoutForm);
+
+        document.getElementById("confirmButton")
+            .addEventListener("click", saveCheckOut);
+
+        document.getElementById("logoutLink")
+            .addEventListener("click", () => {
+                ["token", "userId", "username", "fullName", "roleName"]
+                    .forEach(key => localStorage.removeItem(key));
+            });
+
+        loadCheckoutList();
+    });
+
+    async function apiRequest(url, options = {}) {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+            throw new Error("Bạn chưa đăng nhập. Vui lòng đăng nhập lại.");
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...(options.headers || {}),
+                "Authorization": `Bearer ${token}`,
+                ...(options.body ? { "Content-Type": "application/json" } : {})
+            }
+        });
+
+        const text = await response.text();
+        let result = null;
+
+        if (text) {
+            try {
+                result = JSON.parse(text);
+            } catch {
+                result = text;
+            }
+        }
+
+        if (response.status === 401) {
+            throw new Error("Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Hãy đăng nhập lại.");
+        }
+
+        if (response.status === 403) {
+            throw new Error("Tài khoản không có quyền thực hiện thao tác này.");
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                result?.message ||
+                (typeof result === "string" ? result : "") ||
+                `Yêu cầu thất bại (${response.status}).`
+            );
+        }
+
+        return result;
+    }
+
+    function getList(result) {
+        if (Array.isArray(result)) return result;
+        if (Array.isArray(result?.data)) return result.data;
+        return [];
+    }
+
+    function getField(object, ...keys) {
+        for (const key of keys) {
+            if (object && object[key] !== undefined && object[key] !== null) {
+                return object[key];
+            }
+        }
+        return null;
+    }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? String(value)
+            : date.toLocaleDateString("vi-VN");
+    }
+
+    function statusName(status) {
+        const numericNames = {
+            0: "Chờ xác nhận",
+            1: "Đã xác nhận",
+            2: "Đã hủy",
+            3: "Đã check-in",
+            4: "Đã check-out"
+        };
+
+        if (
+            typeof status === "number" ||
+            (typeof status === "string" &&
+             status.trim() !== "" &&
+             !Number.isNaN(Number(status)))
+        ) {
+            return numericNames[Number(status)] ?? `Trạng thái ${status}`;
+        }
+
+        if (typeof status === "string") {
+            const normalized = status.toLowerCase().replace(/\s/g, "");
+            const names = {
+                choxacnhan: "Chờ xác nhận",
+                daxacnhan: "Đã xác nhận",
+                dahuy: "Đã hủy",
+                dacheckin: "Đã check-in",
+                dacheckout: "Đã check-out"
+            };
+
+            return names[normalized] ?? status;
+        }
+
+        return "Không xác định";
+    }
+
+    // ReservationStatus.DaCheckIn = 3 trong Backend.
+    function isCheckedIn(reservation) {
+        const status = getField(reservation, "status", "Status");
+
+        if (typeof status === "number") {
+            return status === 3;
+        }
+
+        if (typeof status === "string") {
+            const normalized = status.trim().toLowerCase().replace(/\s/g, "");
+            return normalized === "3" || normalized === "dacheckin";
+        }
+
+        return false;
+    }
+
+    async function loadCheckoutList() {
+        const tbody = document.getElementById("checkOutTableBody");
+        tbody.innerHTML = '<tr><td colspan="7">Đang tải dữ liệu...</td></tr>';
+        setMessage("");
+
+        try {
+            const result = await apiRequest(
+                `${API_BASE_URL}/Reservation?page=1&pageSize=100`
+            );
+
+            const reservations = getList(result);
+
+            const details = await Promise.all(
+                reservations.map(async reservation => {
+                    try {
+                        const reservationId = getField(reservation, "id", "Id");
+                        const guestId = getField(reservation, "guestId", "GuestId");
+
+                        const [guestResult, roomResult] = await Promise.all([
+                            guestId
+                                ? apiRequest(`${API_BASE_URL}/Guest/${guestId}`)
+                                : Promise.resolve(null),
+                            apiRequest(
+                                `${API_BASE_URL}/ReservationRoom?reservationId=${reservationId}`
+                            )
+                        ]);
+
+                        const guest = guestResult?.data ?? guestResult;
+                        const reservationRooms = getList(roomResult);
+                        const reservationRoom = reservationRooms[0] || null;
+                        let room = null;
+
+                        if (reservationRoom) {
+                            const roomId = getField(
+                                reservationRoom, "roomId", "RoomId"
+                            );
+
+                            if (roomId !== null) {
+                                const roomResultById = await apiRequest(
+                                    `${API_BASE_URL}/Room/${roomId}`
+                                );
+                                room = roomResultById?.data ?? roomResultById;
+                            }
+                        }
+
+                        return {
+                            reservation,
+                            guest,
+                            reservationRoom,
+                            room,
+                            error: null
+                        };
+                    } catch (error) {
+                        console.error("Lỗi lấy chi tiết đặt phòng:", error);
+                        return {
+                            reservation,
+                            guest: null,
+                            reservationRoom: null,
+                            room: null,
+                            error: error.message
+                        };
+                    }
+                })
+            );
+
+            checkoutItems = details.filter(
+                item => isCheckedIn(item.reservation)
+            );
+
+            renderCheckoutList();
+
+            if (details.some(item => item.error)) {
+                setMessage(
+                    "Một số thông tin chi tiết chưa tải được. Hãy kiểm tra quyền API và dữ liệu gán phòng.",
+                    true
+                );
+            }
+        } catch (error) {
+            console.error("Lỗi tải danh sách Check-out:", error);
+            tbody.innerHTML =
+                `<tr><td colspan="7">${escapeHtml(error.message)}</td></tr>`;
+            setMessage(error.message, true);
+        }
+    }
+
+    function renderCheckoutList() {
+        const tbody = document.getElementById("checkOutTableBody");
+        const keyword = document.getElementById("searchCheckOut")
+            .value.trim().toLowerCase();
+
+        tbody.innerHTML = "";
+
+        const filtered = checkoutItems.filter(item => {
+            const reservation = item.reservation;
+            const code = getField(
+                reservation, "reservationCode", "ReservationCode"
+            );
+            const guestName = getField(
+                item.guest, "fullName", "FullName", "name", "Name"
+            );
+            const roomNumber = getField(
+                item.room, "roomNumber", "RoomNumber"
+            );
+
+            return [code, guestName, roomNumber].some(
+                value => String(value ?? "").toLowerCase().includes(keyword)
+            );
+        });
+
+        if (filtered.length === 0) {
+            tbody.innerHTML =
+                '<tr><td colspan="7">Không có đơn đặt phòng đang check-in.</td></tr>';
+            return;
+        }
+
+        filtered.forEach(item => {
+            const reservation = item.reservation;
+            const id = getField(reservation, "id", "Id");
+            const code = getField(
+                reservation, "reservationCode", "ReservationCode"
+            ) ?? id;
+            const guestName = getField(
+                item.guest, "fullName", "FullName", "name", "Name"
+            ) ?? "Chưa có thông tin";
+            const roomNumber = getField(
+                item.room, "roomNumber", "RoomNumber"
+            ) ?? "Chưa gán phòng";
+            const checkInDate = getField(
+                reservation, "checkInDate", "CheckInDate"
+            );
+            const checkOutDate = getField(
+                reservation, "checkOutDate", "CheckOutDate"
+            );
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${escapeHtml(code)}</td>
+                <td>${escapeHtml(guestName)}</td>
+                <td>${escapeHtml(roomNumber)}</td>
+                <td>${escapeHtml(formatDate(checkInDate))}</td>
+                <td>${escapeHtml(formatDate(checkOutDate))}</td>
+                <td>${escapeHtml(statusName(
+                    getField(reservation, "status", "Status")
+                ))}</td>
+                <td>
+                    <button type="button" class="btn-primary">
+                        Trả phòng
+                    </button>
+                </td>
+            `;
+
+            row.querySelector("button").addEventListener("click", () => {
+                openCheckoutForm(item);
+            });
+
+            tbody.appendChild(row);
+        });
+    }
+
+    function openCheckoutForm(item) {
+        selectedCheckout = item;
+
+        document.getElementById("bookingId").value =
+            getField(item.reservation, "reservationCode", "ReservationCode") ??
+            getField(item.reservation, "id", "Id");
+
+        document.getElementById("guestName").value =
+            getField(item.guest, "fullName", "FullName", "name", "Name") ?? "";
+
+        document.getElementById("roomNumber").value =
+            getField(item.room, "roomNumber", "RoomNumber") ?? "";
+
+        document.getElementById("checkOutDate").value =
+            formatDate(getField(
+                item.reservation, "checkOutDate", "CheckOutDate"
+            ));
+
+        document.getElementById("minibar").value = "0";
+        document.getElementById("note").value = "";
+        document.getElementById("checkOutFormSection").style.display = "block";
+
+        document.getElementById("checkOutFormSection").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    function closeCheckoutForm() {
+        document.getElementById("checkOutFormSection").style.display = "none";
+        selectedCheckout = null;
+    }
+
+    async function saveCheckOut() {
+        if (!selectedCheckout) {
+            setMessage("Bạn chưa chọn đơn đặt phòng.", true);
+            return;
+        }
+
+        const minibar = document.getElementById("minibar").value;
+
+        if (
+            minibar === "" ||
+            !Number.isFinite(Number(minibar)) ||
+            Number(minibar) < 0
+        ) {
+            setMessage("Tiền minibar không hợp lệ.", true);
+            return;
+        }
+
+        const reservationId = getField(
+            selectedCheckout.reservation, "id", "Id"
+        );
+
+        const button = document.getElementById("confirmButton");
+        button.disabled = true;
+        button.textContent = "Đang xử lý...";
+
+        try {
+            const result = await apiRequest(
+                `${API_BASE_URL}/CheckOut/${reservationId}`,
+                { method: "POST" }
+            );
+
+            setMessage(
+                result?.message || "Check-out thành công.",
+                false
+            );
+
+            closeCheckoutForm();
+            await loadCheckoutList();
+        } catch (error) {
+            console.error("Lỗi Check-out:", error);
+            setMessage(
+                error.message || "Không thể thực hiện Check-out.",
+                true
+            );
+        } finally {
+            button.disabled = false;
+            button.textContent = "Xác nhận trả phòng";
+        }
+    }
+
+    function setMessage(message, isError = false) {
+        const element = document.getElementById("pageMessage");
+        element.textContent = message;
+        element.style.color = isError ? "#c62828" : "#237a3b";
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+    }
+</script>
+
+</body>
+</html>

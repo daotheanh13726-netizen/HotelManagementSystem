@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Báo cáo - Hệ thống quản lý khách sạn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- MENU BÊN TRÁI -->
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="ketoan.html">
+                        Tổng quan
+                    </a>
+                </li>
+
+                <li>
+                    <a href="hoadon.html">
+                        Hóa đơn
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Thanh toán
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#">
+                        Doanh thu
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="baocao.html">
+                        Báo cáo
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- NỘI DUNG CHÍNH -->
+        <main class="main-content">
+
+            <!-- HEADER -->
+            <header class="header">
+
+                <div class="header-left">
+
+                    <h1>Báo cáo</h1>
+
+                    <p>
+                        Báo cáo công suất phòng và doanh thu
+                    </p>
+
+                </div>
+
+                <div class="header-right">
+
+                    <span>
+                        Xin chào, Kế toán
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- BỘ LỌC THỜI GIAN -->
+            <section class="content-section">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>Khoảng thời gian</h2>
+
+                        <p>
+                            Chọn thời gian cần xem báo cáo
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-card">
+
+                    <div class="form-row">
+
+                        <div class="form-group">
+
+                            <label for="fromDate">
+                                Từ ngày
+                            </label>
+
+                            <input
+                                type="date"
+                                id="fromDate"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="toDate">
+                                Đến ngày
+                            </label>
+
+                            <input
+                                type="date"
+                                id="toDate"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>&nbsp;</label>
+
+                            <button
+                                type="button"
+                                class="btn-primary"
+                                onclick="loadReport()">
+
+                                Xem báo cáo
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- THỐNG KÊ -->
+            <section class="dashboard-cards">
+
+                <div class="dashboard-card">
+
+                    <h3>Tổng số phòng</h3>
+
+                    <strong id="totalRoom">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>Phòng đang sử dụng</h3>
+
+                    <strong id="occupiedRoom">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>Công suất phòng</h3>
+
+                    <strong id="occupancyRate">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <h3>Doanh thu</h3>
+
+                    <strong id="totalRevenue">
+                        -
+                    </strong>
+
+                </div>
+
+            </section>
+
+
+            <!-- BÁO CÁO CHI TIẾT -->
+            <section class="content-section">
+
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>Chi tiết báo cáo</h2>
+
+                        <p>
+                            Thông tin công suất phòng và doanh thu
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-card">
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Ngày</th>
+
+                                    <th>Tổng số phòng</th>
+
+                                    <th>Phòng sử dụng</th>
+
+                                    <th>Công suất</th>
+
+                                    <th>Doanh thu</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <!-- Chưa kết nối Backend nên để trống -->
+                            <tbody id="reportTableBody">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        function loadReport() {
+
+            const fromDate =
+                document.getElementById("fromDate").value;
+
+            const toDate =
+                document.getElementById("toDate").value;
+
+
+            if (!fromDate || !toDate) {
+
+                alert(
+                    "Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc."
+                );
+
+                return;
+            }
+
+
+            if (fromDate > toDate) {
+
+                alert(
+                    "Ngày bắt đầu không được lớn hơn ngày kết thúc."
+                );
+
+                return;
+            }
+
+
+            /*
+             * Hiện tại Frontend chưa kết nối Backend.
+             *
+             * Khi kết nối API sẽ lấy dữ liệu báo cáo
+             * theo fromDate và toDate tại đây.
+             */
+
+            alert(
+                "Chức năng sẽ lấy dữ liệu từ hệ thống khi kết nối Backend."
+            );
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,11 +1,19 @@
+
 using HotelManagementSystem.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Microsoft.Extensions.FileProviders;
+using QuestPDF.Infrastructure;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// =========================
+// QUESTPDF LICENSE
+// =========================
+QuestPDF.Settings.License = LicenseType.Community;
 
 // =========================
 // CORS
@@ -69,9 +77,6 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    // =========================
-    // JWT BEARER AUTHENTICATION
-    // =========================
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -79,13 +84,9 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description =
-            "Nhập JWT token theo dạng: Bearer {token}"
+        Description = "Nhập JWT token theo dạng: Bearer {token}"
     });
 
-    // =========================
-    // YÊU CẦU JWT CHO SWAGGER
-    // =========================
     options.AddSecurityRequirement(document =>
         new OpenApiSecurityRequirement
         {
@@ -97,6 +98,44 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
+// =========================
+// FRONTEND FILES
+// =========================
+// HotelManagementSystem.API/../HotelManagementSystem.Web
+var webPath = Path.GetFullPath(
+    Path.Combine(
+        app.Environment.ContentRootPath,
+        "..",
+        "HotelManagementSystem.Web"
+    )
+);
+
+if (!Directory.Exists(webPath))
+{
+    throw new DirectoryNotFoundException(
+        $"Không tìm thấy thư mục frontend: {webPath}"
+    );
+}
+
+var webFileProvider = new PhysicalFileProvider(webPath);
+
+// =========================
+// DEFAULT PAGE
+// =========================
+app.UseDefaultFiles(new DefaultFilesOptions
+{
+    FileProvider = webFileProvider,
+    DefaultFileNames = { "dangnhap.html" }
+});
+
+// =========================
+// STATIC FILES
+// =========================
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = webFileProvider
+});
 
 // =========================
 // SWAGGER

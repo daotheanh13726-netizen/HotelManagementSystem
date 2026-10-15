@@ -1,0 +1,231 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý loại phòng - Hệ thống quản lý khách sạn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- Thanh menu bên trái -->
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="admin.html">Tổng quan</a>
+                </li>
+
+                <li>
+                    <a href="phong.html">Phòng</a>
+                </li>
+
+                <li class="active">
+                    <a href="loaiphong.html">Loại phòng</a>
+                </li>
+
+                <li>
+                    <a href="khachhang.html">Khách hàng</a>
+                </li>
+
+                <li>
+                    <a href="datphong.html">Đặt phòng</a>
+                </li>
+
+                <li>
+                    <a href="dichvu.html">Dịch vụ</a>
+                </li>
+
+                <li>
+                    <a href="hoadon.html">Hóa đơn</a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="header">
+
+                <div class="header-left">
+                    <h1>Quản lý loại phòng</h1>
+
+                    <p>
+                        Quản lý danh sách các loại phòng của khách sạn
+                    </p>
+                </div>
+
+                <div class="header-right">
+                    <span>Xin chào, Quản trị viên</span>
+                </div>
+
+            </header>
+
+            <!-- Nội dung -->
+            <section class="content-section">
+
+                <!-- Tiêu đề -->
+                <div class="page-header">
+
+                    <div>
+                        <h2>Danh sách loại phòng</h2>
+
+                        <p>
+                            Thông tin loại phòng và giá cơ bản
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn-primary"
+                        onclick="openForm()">
+                        + Thêm loại phòng
+                    </button>
+
+                </div>
+
+                <!-- Form thêm / sửa -->
+                <div
+                    id="roomTypeForm"
+                    class="form-card"
+                    style="display: none;">
+
+                    <h3 id="formTitle">Thêm loại phòng</h3>
+
+                    <form id="formLoaiPhong">
+
+                        <div class="form-row">
+
+                            <!-- Tên loại phòng -->
+                            <div class="form-group">
+
+                                <label for="roomTypeName">
+                                    Tên loại phòng
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="roomTypeName"
+                                    name="roomTypeName"
+                                    placeholder="Nhập tên loại phòng"
+                                    required>
+
+                            </div>
+
+                            <!-- Giá cơ bản -->
+                            <div class="form-group">
+
+                                <label for="basePrice">
+                                    Giá cơ bản
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="basePrice"
+                                    name="basePrice"
+                                    placeholder="Nhập giá cơ bản"
+                                    min="0"
+                                    required>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Mô tả -->
+                        <div class="form-group">
+
+                            <label for="description">
+                                Mô tả
+                            </label>
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                rows="3"
+                                placeholder="Nhập mô tả loại phòng"></textarea>
+
+                        </div>
+
+                        <!-- Nút -->
+                        <div class="form-actions">
+
+                            <button
+                                type="button"
+                                class="btn-secondary"
+                                onclick="closeForm()">
+                                Hủy
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="btn-primary">
+                                Lưu
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <!-- Bảng danh sách -->
+                <div class="table-card">
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên loại phòng</th>
+                                    <th>Mô tả</th>
+                                    <th>Giá cơ bản</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="roomTypeTable">
+
+                                <tr>
+                                    <td colspan="5">
+                                        Đang tải dữ liệu...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- JavaScript kết nối Backend -->
+    <script src="js/loaiphong.js"></script>
+
+</body>
+
+</html>

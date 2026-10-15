@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý khách hàng - Hệ thống quản lý khách sạn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- Thanh menu bên trái -->
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="admin.html">
+                        Tổng quan
+                    </a>
+                </li>
+
+                <li>
+                    <a href="phong.html">
+                        Phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="loaiphong.html">
+                        Loại phòng
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="khachhang.html">
+                        Khách hàng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="datphong.html">
+                        Đặt phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="dichvu.html">
+                        Dịch vụ
+                    </a>
+                </li>
+
+                <li>
+                    <a href="hoadon.html">
+                        Hóa đơn
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="header">
+
+                <div class="header-left">
+
+                    <h1>Quản lý khách hàng</h1>
+
+                    <p>
+                        Quản lý thông tin khách hàng của khách sạn
+                    </p>
+
+                </div>
+
+                <div class="header-right">
+
+                    <span>
+                        Xin chào, Quản trị viên
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- Nội dung quản lý khách hàng -->
+            <section class="content-section">
+
+                <!-- Tiêu đề -->
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>Danh sách khách hàng</h2>
+
+                        <p>
+                            Thông tin khách hàng đang được quản lý
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="btn-primary"
+                        onclick="openCustomerForm()">
+                        + Thêm khách hàng
+                    </button>
+
+                </div>
+
+
+                <!-- Tìm kiếm -->
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="searchCustomer"
+                        class="search-box"
+                        placeholder="Tìm theo tên hoặc số điện thoại..."
+                        onkeyup="searchCustomer()"
+                    >
+
+                </div>
+
+
+                <!-- Bảng khách hàng -->
+                <div class="table-card">
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>ID</th>
+                                    <th>Họ và tên</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Email</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Thao tác</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <!-- Chưa kết nối Backend nên để trống -->
+                            <tbody id="customerTableBody">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Form thêm / sửa khách hàng -->
+            <div
+                id="customerModal"
+                class="modal">
+
+                <div class="modal-content">
+
+                    <span
+                        class="close"
+                        onclick="closeCustomerForm()">
+                        &times;
+                    </span>
+
+
+                    <h2 id="customerFormTitle">
+                        Thêm khách hàng
+                    </h2>
+
+
+                    <form id="customerForm">
+
+                        <!-- Họ và tên -->
+                        <div class="form-group">
+
+                            <label for="customerName">
+                                Họ và tên
+                            </label>
+
+                            <input
+                                type="text"
+                                id="customerName"
+                                placeholder="Nhập họ và tên"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Số điện thoại -->
+                        <div class="form-group">
+
+                            <label for="customerPhone">
+                                Số điện thoại
+                            </label>
+
+                            <input
+                                type="tel"
+                                id="customerPhone"
+                                placeholder="Nhập số điện thoại"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Email -->
+                        <div class="form-group">
+
+                            <label for="customerEmail">
+                                Email
+                            </label>
+
+                            <input
+                                type="email"
+                                id="customerEmail"
+                                placeholder="Nhập email"
+                            >
+
+                        </div>
+
+
+                        <!-- Địa chỉ -->
+                        <div class="form-group">
+
+                            <label for="customerAddress">
+                                Địa chỉ
+                            </label>
+
+                            <input
+                                type="text"
+                                id="customerAddress"
+                                placeholder="Nhập địa chỉ"
+                            >
+
+                        </div>
+
+
+                        <!-- Nút -->
+                        <div class="form-actions">
+
+                            <button
+                                type="button"
+                                class="btn-secondary"
+                                onclick="closeCustomerForm()">
+                                Hủy
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="btn-primary">
+                                Lưu khách hàng
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        let editingCustomerId = null;
+
+
+        // Mở form thêm khách hàng
+        function openCustomerForm() {
+
+            document
+                .getElementById("customerModal")
+                .style.display = "flex";
+
+            document
+                .getElementById("customerFormTitle")
+                .innerText = "Thêm khách hàng";
+
+            document
+                .getElementById("customerForm")
+                .reset();
+
+            editingCustomerId = null;
+        }
+
+
+        // Đóng form
+        function closeCustomerForm() {
+
+            document
+                .getElementById("customerModal")
+                .style.display = "none";
+
+            document
+                .getElementById("customerForm")
+                .reset();
+
+            editingCustomerId = null;
+        }
+
+
+        // Tìm kiếm khách hàng
+        function searchCustomer() {
+
+            const keyword =
+                document
+                    .getElementById("searchCustomer")
+                    .value
+                    .toLowerCase()
+                    .trim();
+
+            const rows =
+                document.querySelectorAll(
+                    "#customerTableBody tr"
+                );
+
+
+            rows.forEach(row => {
+
+                const customerName =
+                    row.cells[1]
+                        .textContent
+                        .toLowerCase();
+
+                const customerPhone =
+                    row.cells[2]
+                        .textContent
+                        .toLowerCase();
+
+
+                if (
+                    customerName.includes(keyword) ||
+                    customerPhone.includes(keyword)
+                ) {
+
+                    row.style.display = "";
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+        }
+
+
+        // Sửa khách hàng
+        function editCustomer(id) {
+
+            editingCustomerId = id;
+
+            document
+                .getElementById("customerModal")
+                .style.display = "flex";
+
+            document
+                .getElementById("customerFormTitle")
+                .innerText = "Sửa khách hàng";
+
+            /*
+             * Khi kết nối Backend,
+             * thông tin khách hàng sẽ được lấy
+             * theo ID từ API.
+             */
+        }
+
+
+        // Xóa khách hàng
+        function deleteCustomer(id) {
+
+            const confirmDelete =
+                confirm(
+                    "Bạn có chắc muốn xóa khách hàng này?"
+                );
+
+
+            if (confirmDelete) {
+
+                alert(
+                    "Chức năng xóa sẽ được thực hiện khi kết nối Backend."
+                );
+
+            }
+
+        }
+
+
+        // Lưu khách hàng
+        document
+            .getElementById("customerForm")
+            .addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const name =
+                        document
+                            .getElementById("customerName")
+                            .value
+                            .trim();
+
+
+                    if (name === "") {
+
+                        alert(
+                            "Vui lòng nhập họ và tên."
+                        );
+
+                        return;
+                    }
+
+
+                    if (editingCustomerId === null) {
+
+                        alert(
+                            "Đã nhập thông tin khách hàng: "
+                            + name
+                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
+                        );
+
+                    } else {
+
+                        alert(
+                            "Đã cập nhật thông tin khách hàng: "
+                            + name
+                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
+                        );
+
+                    }
+
+
+                    closeCustomerForm();
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>

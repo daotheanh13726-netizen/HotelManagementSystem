@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quản lý đặt phòng - Hệ thống quản lý khách sạn</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="layout">
+
+        <!-- Thanh menu bên trái -->
+        <aside class="sidebar">
+
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
+            </div>
+
+            <ul class="menu">
+
+                <li>
+                    <a href="admin.html">
+                        Tổng quan
+                    </a>
+                </li>
+
+                <li>
+                    <a href="phong.html">
+                        Phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="loaiphong.html">
+                        Loại phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="khachhang.html">
+                        Khách hàng
+                    </a>
+                </li>
+
+                <li class="active">
+                    <a href="datphong.html">
+                        Đặt phòng
+                    </a>
+                </li>
+
+                <li>
+                    <a href="dichvu.html">
+                        Dịch vụ
+                    </a>
+                </li>
+
+                <li>
+                    <a href="hoadon.html">
+                        Hóa đơn
+                    </a>
+                </li>
+
+            </ul>
+
+        </aside>
+
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="header">
+
+                <div class="header-left">
+
+                    <h1>Quản lý đặt phòng</h1>
+
+                    <p>
+                        Quản lý thông tin đặt phòng của khách hàng
+                    </p>
+
+                </div>
+
+                <div class="header-right">
+
+                    <span>
+                        Xin chào, Quản trị viên
+                    </span>
+
+                </div>
+
+            </header>
+
+
+            <!-- Nội dung -->
+            <section class="content-section">
+
+                <!-- Tiêu đề -->
+                <div class="page-header">
+
+                    <div>
+
+                        <h2>Danh sách đặt phòng</h2>
+
+                        <p>
+                            Theo dõi và quản lý các đặt phòng
+                        </p>
+
+                    </div>
+
+                    <button
+                        class="btn-primary"
+                        onclick="openBookingForm()">
+
+                        + Thêm đặt phòng
+
+                    </button>
+
+                </div>
+
+
+                <!-- Tìm kiếm và lọc -->
+                <div class="toolbar">
+
+                    <input
+                        type="text"
+                        id="searchBooking"
+                        class="search-box"
+                        placeholder="Tìm theo mã đặt phòng hoặc khách hàng..."
+                        onkeyup="searchBooking()"
+                    >
+
+
+                    <select
+                        id="bookingStatus"
+                        class="search-box"
+                        onchange="filterBooking()">
+
+                        <option value="">
+                            Tất cả trạng thái
+                        </option>
+
+                        <option value="Chờ xác nhận">
+                            Chờ xác nhận
+                        </option>
+
+                        <option value="Đã xác nhận">
+                            Đã xác nhận
+                        </option>
+
+                        <option value="Đã hủy">
+                            Đã hủy
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Bảng đặt phòng -->
+                <div class="table-card">
+
+                    <div class="table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Mã đặt phòng</th>
+
+                                    <th>Khách hàng</th>
+
+                                    <th>Phòng</th>
+
+                                    <th>Ngày nhận</th>
+
+                                    <th>Ngày trả</th>
+
+                                    <th>Trạng thái</th>
+
+                                    <th>Thao tác</th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <!-- Chưa kết nối Backend nên để trống -->
+                            <tbody id="bookingTableBody">
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Form thêm / sửa đặt phòng -->
+            <div
+                id="bookingModal"
+                class="modal">
+
+                <div class="modal-content">
+
+                    <span
+                        class="close"
+                        onclick="closeBookingForm()">
+
+                        &times;
+
+                    </span>
+
+
+                    <h2 id="bookingFormTitle">
+                        Thêm đặt phòng
+                    </h2>
+
+
+                    <form id="bookingForm">
+
+                        <!-- Khách hàng -->
+                        <div class="form-group">
+
+                            <label for="bookingCustomer">
+                                Khách hàng
+                            </label>
+
+                            <input
+                                type="text"
+                                id="bookingCustomer"
+                                placeholder="Nhập tên khách hàng"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Phòng -->
+                        <div class="form-group">
+
+                            <label for="bookingRoom">
+                                Phòng
+                            </label>
+
+                            <input
+                                type="text"
+                                id="bookingRoom"
+                                placeholder="Nhập số phòng"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Ngày nhận -->
+                        <div class="form-group">
+
+                            <label for="checkInDate">
+                                Ngày nhận phòng
+                            </label>
+
+                            <input
+                                type="date"
+                                id="checkInDate"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Ngày trả -->
+                        <div class="form-group">
+
+                            <label for="checkOutDate">
+                                Ngày trả phòng
+                            </label>
+
+                            <input
+                                type="date"
+                                id="checkOutDate"
+                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Trạng thái -->
+                        <div class="form-group">
+
+                            <label for="bookingStatusForm">
+                                Trạng thái
+                            </label>
+
+                            <select id="bookingStatusForm">
+
+                                <option value="Chờ xác nhận">
+                                    Chờ xác nhận
+                                </option>
+
+                                <option value="Đã xác nhận">
+                                    Đã xác nhận
+                                </option>
+
+                                <option value="Đã hủy">
+                                    Đã hủy
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <!-- Nút -->
+                        <div class="form-actions">
+
+                            <button
+                                type="button"
+                                class="btn-secondary"
+                                onclick="closeBookingForm()">
+
+                                Hủy
+
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="btn-primary">
+
+                                Lưu đặt phòng
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- JavaScript -->
+    <script>
+
+        let editingBookingId = null;
+
+
+        // Mở form thêm đặt phòng
+        function openBookingForm() {
+
+            document
+                .getElementById("bookingModal")
+                .style.display = "flex";
+
+            document
+                .getElementById("bookingFormTitle")
+                .innerText = "Thêm đặt phòng";
+
+            document
+                .getElementById("bookingForm")
+                .reset();
+
+            editingBookingId = null;
+        }
+
+
+        // Đóng form
+        function closeBookingForm() {
+
+            document
+                .getElementById("bookingModal")
+                .style.display = "none";
+
+            document
+                .getElementById("bookingForm")
+                .reset();
+
+            editingBookingId = null;
+        }
+
+
+        // Tìm kiếm đặt phòng
+        function searchBooking() {
+
+            const keyword =
+                document
+                    .getElementById("searchBooking")
+                    .value
+                    .toLowerCase()
+                    .trim();
+
+            const rows =
+                document.querySelectorAll(
+                    "#bookingTableBody tr"
+                );
+
+
+            rows.forEach(row => {
+
+                const rowText =
+                    row.textContent.toLowerCase();
+
+
+                if (rowText.includes(keyword)) {
+
+                    row.style.display = "";
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+        }
+
+
+        // Lọc theo trạng thái
+        function filterBooking() {
+
+            const status =
+                document
+                    .getElementById("bookingStatus")
+                    .value;
+
+            const rows =
+                document.querySelectorAll(
+                    "#bookingTableBody tr"
+                );
+
+
+            rows.forEach(row => {
+
+                const rowText =
+                    row.textContent;
+
+
+                if (
+                    status === "" ||
+                    rowText.includes(status)
+                ) {
+
+                    row.style.display = "";
+
+                } else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+        }
+
+
+        // Lưu đặt phòng
+        document
+            .getElementById("bookingForm")
+            .addEventListener(
+                "submit",
+                function (event) {
+
+                    event.preventDefault();
+
+
+                    const customer =
+                        document
+                            .getElementById("bookingCustomer")
+                            .value
+                            .trim();
+
+
+                    const room =
+                        document
+                            .getElementById("bookingRoom")
+                            .value
+                            .trim();
+
+
+                    if (
+                        customer === "" ||
+                        room === ""
+                    ) {
+
+                        alert(
+                            "Vui lòng nhập đầy đủ thông tin đặt phòng."
+                        );
+
+                        return;
+                    }
+
+
+                    alert(
+                        "Đã nhập thông tin đặt phòng cho khách hàng "
+                        + customer
+                        + ". Dữ liệu sẽ được lưu khi kết nối Backend."
+                    );
+
+
+                    closeBookingForm();
+
+                }
+            );
+
+    </script>
+
+</body>
+
+</html>
