@@ -1,8 +1,9 @@
 
 "use strict";
 
-const ROOM_API_URL = "https://localhost:44365/api/Room";
-const ROOM_TYPE_API_URL = "https://localhost:44365/api/RoomType";
+// Dùng API_BASE_URL từ global.js (tự động nhận diện origin)
+const ROOM_API_URL = `${API_BASE_URL}/Room`;
+const ROOM_TYPE_API_URL = `${API_BASE_URL}/RoomType`;
 
 let rooms = [];
 let roomTypes = [];

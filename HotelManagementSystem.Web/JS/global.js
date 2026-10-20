@@ -1,8 +1,24 @@
-
 "use strict";
 
-// Địa chỉ ASP.NET Core Web API
-const API_BASE_URL = "https://localhost:44365/api";
+// ========================================================
+// CẤU HÌNH ĐỊA CHỈ API
+// ========================================================
+// Tự động nhận diện Origin hiện tại.
+// - Khi chạy trực tiếp qua API (http://localhost:5054): dùng cùng origin
+// - Khi chạy qua Gateway (http://localhost:5000): dùng cùng origin (Gateway sẽ proxy)
+// - Khi mở file trực tiếp (file://): fallback về localhost:5054
+
+function _detectApiBase() {
+    if (window.location.protocol.startsWith("http")) {
+        return window.location.origin;
+    }
+    return "http://localhost:5054";
+}
+
+const API_ORIGIN = _detectApiBase();
+const API_BASE_URL = `${API_ORIGIN}/api`;
+const API_CLIENT_URL = `${API_ORIGIN}/api-client`;
+const API_ADMIN_URL = `${API_ORIGIN}/api-admin`;
 
 // Lấy JWT đã lưu sau khi đăng nhập
 function getToken() {
@@ -33,13 +49,21 @@ async function apiFetch(endpoint, options = {}) {
         ...(options.headers || {})
     };
 
-    const response = await fetch(
-        `${API_BASE_URL}${endpoint}`,
-        {
-            ...options,
-            headers
+    // Xác định URL đầy đủ
+    let fullUrl = endpoint;
+    if (!endpoint.startsWith("http")) {
+        if (endpoint.startsWith("/api")) {
+            fullUrl = `${API_ORIGIN}${endpoint}`;
+        } else {
+            const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+            fullUrl = `${API_BASE_URL}${cleanEndpoint}`;
         }
-    );
+    }
+
+    const response = await fetch(fullUrl, {
+        ...options,
+        headers
+    });
 
     if (response.status === 401) {
         throw new Error(
@@ -49,13 +73,12 @@ async function apiFetch(endpoint, options = {}) {
 
     if (response.status === 403) {
         throw new Error(
-            "Bạn không có quyền thực hiện thao tác này."
+            "Bạn không có quyền thực hiện thao tác này qua Gateway."
         );
     }
 
     if (!response.ok) {
         const errorText = await response.text();
-
         throw new Error(
             errorText || `API trả về lỗi ${response.status}.`
         );
@@ -73,6 +96,18 @@ async function apiFetch(endpoint, options = {}) {
     }
 
     return await response.text();
+}
+
+// Gọi API phân hệ Khách hàng (Client API) qua Gateway
+async function apiFetchClient(endpoint, options = {}) {
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    return await apiFetch(`/api-client${cleanEndpoint}`, options);
+}
+
+// Gọi API phân hệ Quản trị (Admin API) qua Gateway
+async function apiFetchAdmin(endpoint, options = {}) {
+    const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+    return await apiFetch(`/api-admin${cleanEndpoint}`, options);
 }
 
 // Xóa thông tin đăng nhập và quay lại trang đăng nhập

@@ -7,7 +7,7 @@
 
     <title>Quản lý đặt phòng - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -23,50 +23,24 @@
             </div>
 
             <ul class="menu">
-
-                <li>
-                    <a href="admin.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <li>
-                    <a href="phong.html">
-                        Phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="loaiphong.html">
-                        Loại phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="khachhang.html">
-                        Khách hàng
-                    </a>
-                </li>
-
-                <li class="active">
-                    <a href="datphong.html">
-                        Đặt phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="dichvu.html">
-                        Dịch vụ
-                    </a>
-                </li>
-
-                <li>
-                    <a href="hoadon.html">
-                        Hóa đơn
-                    </a>
-                </li>
-
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li class="active"><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -174,6 +148,8 @@
 
                                 <tr>
 
+                                    <th>ID</th>
+
                                     <th>Mã đặt phòng</th>
 
                                     <th>Khách hàng</th>
@@ -193,9 +169,12 @@
                             </thead>
 
 
-                            <!-- Chưa kết nối Backend nên để trống -->
                             <tbody id="bookingTableBody">
-
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: #6b7280;">
+                                        Đang tải dữ liệu đặt phòng...
+                                    </td>
+                                </tr>
                             </tbody>
 
                         </table>
@@ -234,15 +213,15 @@
                         <div class="form-group">
 
                             <label for="bookingCustomer">
-                                Khách hàng
+                                Khách hàng <span style="color: red;">*</span>
                             </label>
 
-                            <input
-                                type="text"
+                            <select
                                 id="bookingCustomer"
-                                placeholder="Nhập tên khách hàng"
                                 required
                             >
+                                <option value="">-- Chọn khách hàng --</option>
+                            </select>
 
                         </div>
 
@@ -251,15 +230,14 @@
                         <div class="form-group">
 
                             <label for="bookingRoom">
-                                Phòng
+                                Chọn phòng
                             </label>
 
-                            <input
-                                type="text"
+                            <select
                                 id="bookingRoom"
-                                placeholder="Nhập số phòng"
-                                required
                             >
+                                <option value="">-- Chọn phòng --</option>
+                            </select>
 
                         </div>
 
@@ -268,7 +246,7 @@
                         <div class="form-group">
 
                             <label for="checkInDate">
-                                Ngày nhận phòng
+                                Ngày nhận phòng <span style="color: red;">*</span>
                             </label>
 
                             <input
@@ -284,7 +262,7 @@
                         <div class="form-group">
 
                             <label for="checkOutDate">
-                                Ngày trả phòng
+                                Ngày trả phòng <span style="color: red;">*</span>
                             </label>
 
                             <input
@@ -305,16 +283,24 @@
 
                             <select id="bookingStatusForm">
 
-                                <option value="Chờ xác nhận">
+                                <option value="0">
                                     Chờ xác nhận
                                 </option>
 
-                                <option value="Đã xác nhận">
+                                <option value="1">
                                     Đã xác nhận
                                 </option>
 
-                                <option value="Đã hủy">
+                                <option value="2">
                                     Đã hủy
+                                </option>
+
+                                <option value="3">
+                                    Đã check-in
+                                </option>
+
+                                <option value="4">
+                                    Đã check-out
                                 </option>
 
                             </select>
@@ -336,7 +322,8 @@
 
                             <button
                                 type="submit"
-                                class="btn-primary">
+                                class="btn-primary"
+                                id="btnSaveBooking">
 
                                 Lưu đặt phòng
 
@@ -356,171 +343,9 @@
 
 
     <!-- JavaScript -->
-    <script>
-
-        let editingBookingId = null;
-
-
-        // Mở form thêm đặt phòng
-        function openBookingForm() {
-
-            document
-                .getElementById("bookingModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("bookingFormTitle")
-                .innerText = "Thêm đặt phòng";
-
-            document
-                .getElementById("bookingForm")
-                .reset();
-
-            editingBookingId = null;
-        }
-
-
-        // Đóng form
-        function closeBookingForm() {
-
-            document
-                .getElementById("bookingModal")
-                .style.display = "none";
-
-            document
-                .getElementById("bookingForm")
-                .reset();
-
-            editingBookingId = null;
-        }
-
-
-        // Tìm kiếm đặt phòng
-        function searchBooking() {
-
-            const keyword =
-                document
-                    .getElementById("searchBooking")
-                    .value
-                    .toLowerCase()
-                    .trim();
-
-            const rows =
-                document.querySelectorAll(
-                    "#bookingTableBody tr"
-                );
-
-
-            rows.forEach(row => {
-
-                const rowText =
-                    row.textContent.toLowerCase();
-
-
-                if (rowText.includes(keyword)) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }
-
-            });
-
-        }
-
-
-        // Lọc theo trạng thái
-        function filterBooking() {
-
-            const status =
-                document
-                    .getElementById("bookingStatus")
-                    .value;
-
-            const rows =
-                document.querySelectorAll(
-                    "#bookingTableBody tr"
-                );
-
-
-            rows.forEach(row => {
-
-                const rowText =
-                    row.textContent;
-
-
-                if (
-                    status === "" ||
-                    rowText.includes(status)
-                ) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }
-
-            });
-
-        }
-
-
-        // Lưu đặt phòng
-        document
-            .getElementById("bookingForm")
-            .addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    const customer =
-                        document
-                            .getElementById("bookingCustomer")
-                            .value
-                            .trim();
-
-
-                    const room =
-                        document
-                            .getElementById("bookingRoom")
-                            .value
-                            .trim();
-
-
-                    if (
-                        customer === "" ||
-                        room === ""
-                    ) {
-
-                        alert(
-                            "Vui lòng nhập đầy đủ thông tin đặt phòng."
-                        );
-
-                        return;
-                    }
-
-
-                    alert(
-                        "Đã nhập thông tin đặt phòng cho khách hàng "
-                        + customer
-                        + ". Dữ liệu sẽ được lưu khi kết nối Backend."
-                    );
-
-
-                    closeBookingForm();
-
-                }
-            );
-
-    </script>
-
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/datphong.js?v=4"></script>
 </body>
 
 </html>

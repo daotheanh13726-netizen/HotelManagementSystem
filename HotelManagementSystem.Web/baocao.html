@@ -7,7 +7,7 @@
 
     <title>Báo cáo - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -23,38 +23,24 @@
             </div>
 
             <ul class="menu">
-
-                <li>
-                    <a href="ketoan.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <li>
-                    <a href="hoadon.html">
-                        Hóa đơn
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#">
-                        Thanh toán
-                    </a>
-                </li>
-
-                <li>
-                    <a href="#">
-                        Doanh thu
-                    </a>
-                </li>
-
-                <li class="active">
-                    <a href="baocao.html">
-                        Báo cáo
-                    </a>
-                </li>
-
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li class="active"><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -143,7 +129,7 @@
                             <button
                                 type="button"
                                 class="btn-primary"
-                                onclick="loadReport()">
+                                id="loadReportButton" onclick="loadReport()">
 
                                 Xem báo cáo
 
@@ -151,6 +137,7 @@
 
                         </div>
 
+                    <div id="reportMessage" style="margin-top: 12px; font-weight: 500;"></div>
                     </div>
 
                 </div>
@@ -256,7 +243,6 @@
                             </tbody>
 
                         </table>
-
                     </div>
 
                 </div>
@@ -268,52 +254,11 @@
     </div>
 
 
-    <script>
+    
 
-        function loadReport() {
-
-            const fromDate =
-                document.getElementById("fromDate").value;
-
-            const toDate =
-                document.getElementById("toDate").value;
-
-
-            if (!fromDate || !toDate) {
-
-                alert(
-                    "Vui lòng chọn đầy đủ ngày bắt đầu và ngày kết thúc."
-                );
-
-                return;
-            }
-
-
-            if (fromDate > toDate) {
-
-                alert(
-                    "Ngày bắt đầu không được lớn hơn ngày kết thúc."
-                );
-
-                return;
-            }
-
-
-            /*
-             * Hiện tại Frontend chưa kết nối Backend.
-             *
-             * Khi kết nối API sẽ lấy dữ liệu báo cáo
-             * theo fromDate và toDate tại đây.
-             */
-
-            alert(
-                "Chức năng sẽ lấy dữ liệu từ hệ thống khi kết nối Backend."
-            );
-
-        }
-
-    </script>
-
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/baocao.js?v=4"></script>
 </body>
 
 </html>

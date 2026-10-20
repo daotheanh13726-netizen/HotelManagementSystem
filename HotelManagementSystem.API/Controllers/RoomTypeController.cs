@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ namespace HotelManagementSystem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Lễ tân")]
+    [Authorize]
     public class RoomTypeController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -19,7 +19,9 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // GET: api/RoomType
+        // Khách hàng và người dùng chưa đăng nhập có thể xem danh mục loại phòng
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var roomTypes = await _context.RoomTypes.ToListAsync();
@@ -29,6 +31,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // POST: api/RoomType
         [HttpPost]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Create(RoomType roomType)
         {
             _context.RoomTypes.Add(roomType);
@@ -39,6 +42,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // PUT: api/RoomType/1
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Update(int id, RoomType roomType)
         {
             var existingRoomType = await _context.RoomTypes.FindAsync(id);
@@ -59,6 +63,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // DELETE: api/RoomType/1
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Delete(int id)
         {
             var roomType = await _context.RoomTypes.FindAsync(id);

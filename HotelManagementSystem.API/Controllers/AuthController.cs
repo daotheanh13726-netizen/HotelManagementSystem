@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +24,7 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================
-        // ĐĂNG KÝ
+        // ĐĂNG KÝ NỘI BỘ (ADMIN, LỄ TÂN, KẾ TOÁN)
         // POST: /api/Auth/register
         // =========================
         [HttpPost("register")]
@@ -78,6 +78,99 @@ namespace HotelManagementSystem.API.Controllers
                 username = user.Username,
                 roleId = user.RoleId
             });
+        }
+
+        // =========================
+        // ĐĂNG KÝ DÀNH CHO KHÁCH HÀNG
+        // POST: /api/Auth/register-customer
+        // Đảm bảo tạo User và hồ sơ Guest nhất quán bằng Transaction
+        // =========================
+        [HttpPost("register-customer")]
+        public async Task<IActionResult> RegisterCustomer(CustomerRegisterRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Username))
+            {
+                return BadRequest(new { message = "Tên đăng nhập không được để trống." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Password))
+            {
+                return BadRequest(new { message = "Mật khẩu không được để trống." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.FullName))
+            {
+                return BadRequest(new { message = "Họ và tên không được để trống." });
+            }
+
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Username == request.Username);
+
+            if (existingUser != null)
+            {
+                return BadRequest(new { message = "Tên đăng nhập đã tồn tại." });
+            }
+
+            // Tìm vai trò Khách trong bảng VaiTro (RoleId = 4 hoặc Name = "Khách")
+            var customerRole = await _context.Roles
+                .FirstOrDefaultAsync(r => r.Name == "Khách" || r.Id == 4);
+
+            if (customerRole == null)
+            {
+                return BadRequest(new { message = "Vai trò 'Khách' chưa được cấu hình trong hệ thống." });
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Tạo hồ sơ Khách hàng
+                var guest = new Guest
+                {
+                    FullName = request.FullName.Trim(),
+                    Phone = request.Phone?.Trim(),
+                    Email = request.Email?.Trim(),
+                    IdentityNumber = request.IdentityNumber?.Trim(),
+                    Address = request.Address?.Trim()
+                };
+
+                _context.Guests.Add(guest);
+                await _context.SaveChangesAsync();
+
+                // 2. Tạo tài khoản đăng nhập liên kết với GuestId
+                var user = new User
+                {
+                    Username = request.Username.Trim(),
+                    FullName = request.FullName.Trim(),
+                    Email = request.Email?.Trim(),
+                    RoleId = customerRole.Id,
+                    GuestId = guest.Id,
+                    IsActive = true,
+                    CreatedAt = DateTime.Now
+                };
+
+                user.PasswordHash = _passwordHasher.HashPassword(user, request.Password);
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return Ok(new
+                {
+                    message = "Đăng ký tài khoản khách hàng thành công.",
+                    userId = user.Id,
+                    guestId = guest.Id,
+                    username = user.Username,
+                    fullName = user.FullName
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    message = "Lỗi trong quá trình tạo tài khoản khách hàng: " + ex.Message
+                });
+            }
         }
 
         // =========================
@@ -136,13 +229,19 @@ namespace HotelManagementSystem.API.Controllers
             }
 
             // 5. Tạo các thông tin bên trong JWT
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Role, role.Name),
                 new Claim("FullName", user.FullName)
             };
+
+            // Nếu tài khoản gắn liền với hồ sơ Guest, nhúng GuestId vào JWT Claim
+            if (user.GuestId.HasValue)
+            {
+                claims.Add(new Claim("GuestId", user.GuestId.Value.ToString()));
+            }
 
             // 6. Secret key
             var key = new SymmetricSecurityKey(
@@ -166,11 +265,12 @@ namespace HotelManagementSystem.API.Controllers
             var tokenString = new JwtSecurityTokenHandler()
                 .WriteToken(token);
 
-            // 8. Trả kết quả
+            // 8. Trả kết quả (giữ nguyên các trường cho Admin/Lễ tân/Kế toán, bổ sung guestId nếu có)
             return Ok(new
             {
                 message = "Đăng nhập thành công.",
                 userId = user.Id,
+                guestId = user.GuestId,
                 username = user.Username,
                 fullName = user.FullName,
                 roleId = user.RoleId,

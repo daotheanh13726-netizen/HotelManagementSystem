@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -7,7 +7,7 @@
 
     <title>Kế toán - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -23,43 +23,15 @@
             </div>
 
             <ul class="menu">
-
-                <!-- Tổng quan -->
-                <li class="active">
-                    <a href="ketoan.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <!-- Hóa đơn -->
-                <li>
-                    <a href="hoadon.html">
-                        Hóa đơn
-                    </a>
-                </li>
-
-                <!-- Thanh toán -->
-                <li>
-                    <a href="#">
-                        Thanh toán
-                    </a>
-                </li>
-
-                <!-- Doanh thu -->
-                <li>
-                    <a href="#">
-                        Doanh thu
-                    </a>
-                </li>
-
-                <!-- Báo cáo -->
-                <li>
-                    <a href="baocao.html">
-                        Báo cáo
-                    </a>
-                </li>
-
+                <li class="active"><a href="ketoan.html">Tổng quan</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -204,6 +176,9 @@
 
     </div>
 
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/ketoan.js"></script>
 </body>
 
 </html>

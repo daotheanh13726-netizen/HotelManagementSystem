@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -8,7 +7,7 @@
 
     <title>Quản lý hóa đơn - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -24,50 +23,24 @@
             </div>
 
             <ul class="menu">
-
-                <li>
-                    <a href="admin.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <li>
-                    <a href="phong.html">
-                        Phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="loaiphong.html">
-                        Loại phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="khachhang.html">
-                        Khách hàng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="datphong.html">
-                        Đặt phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="dichvu.html">
-                        Dịch vụ
-                    </a>
-                </li>
-
-                <li class="active">
-                    <a href="hoadon.html">
-                        Hóa đơn
-                    </a>
-                </li>
-
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li class="active"><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -83,14 +56,14 @@
                     <h1>Quản lý hóa đơn</h1>
 
                     <p>
-                        Quản lý hóa đơn và thanh toán
+                        Quản lý hóa đơn thanh toán và xuất hóa đơn
                     </p>
 
                 </div>
 
                 <div class="header-right">
 
-                    <span>
+                    <span id="adminWelcome">
                         Xin chào, Quản trị viên
                     </span>
 
@@ -110,7 +83,7 @@
                         <h2>Danh sách hóa đơn</h2>
 
                         <p>
-                            Theo dõi tình trạng hóa đơn và thanh toán
+                            Theo dõi tình trạng hóa đơn và xuất file PDF
                         </p>
 
                     </div>
@@ -119,7 +92,7 @@
                         class="btn-primary"
                         onclick="openInvoiceForm()">
 
-                        + Thêm hóa đơn
+                        + Lập hóa đơn mới
 
                     </button>
 
@@ -133,10 +106,8 @@
                         type="text"
                         id="searchInvoice"
                         class="search-box"
-                        placeholder="Tìm theo số hóa đơn..."
-                        onkeyup="searchInvoice()"
+                        placeholder="Tìm theo số hóa đơn, mã phiếu..."
                     >
-
 
                     <select
                         id="invoiceStatus"
@@ -147,11 +118,11 @@
                             Tất cả trạng thái
                         </option>
 
-                        <option value="Chưa thanh toán">
+                        <option value="ChuaThanhToan">
                             Chưa thanh toán
                         </option>
 
-                        <option value="Đã thanh toán">
+                        <option value="DaThanhToan">
                             Đã thanh toán
                         </option>
 
@@ -175,13 +146,13 @@
 
                                     <th>Số hóa đơn</th>
 
-                                    <th>Tiền phòng</th>
+                                    <th>Mã phiếu tính tiền</th>
 
-                                    <th>Tiền dịch vụ</th>
+                                    <th>Tiền trước thuế</th>
 
-                                    <th>Thuế VAT</th>
+                                    <th>Thuế VAT (10%)</th>
 
-                                    <th>Tổng tiền</th>
+                                    <th>Tổng thanh toán</th>
 
                                     <th>Trạng thái</th>
 
@@ -191,10 +162,12 @@
 
                             </thead>
 
-
-                            <!-- Chưa kết nối Backend nên để trống -->
                             <tbody id="invoiceTableBody">
-
+                                <tr>
+                                    <td colspan="8" style="text-align: center; color: #6b7280; padding: 20px;">
+                                        Đang tải dữ liệu hóa đơn...
+                                    </td>
+                                </tr>
                             </tbody>
 
                         </table>
@@ -223,7 +196,7 @@
 
 
                     <h2 id="invoiceFormTitle">
-                        Thêm hóa đơn
+                        Lập hóa đơn mới
                     </h2>
 
 
@@ -233,88 +206,40 @@
                         <div class="form-group">
 
                             <label for="invoiceNumber">
-                                Số hóa đơn
+                                Số hóa đơn <span style="color: red;">*</span>
                             </label>
 
                             <input
                                 type="text"
                                 id="invoiceNumber"
-                                placeholder="Nhập số hóa đơn"
+                                placeholder="Nhập số hóa đơn (ví dụ: HD002)"
                                 required
                             >
 
                         </div>
 
 
-                        <!-- Tiền phòng -->
+                        <!-- Phiếu tính tiền -->
                         <div class="form-group">
 
-                            <label for="roomAmount">
-                                Tiền phòng
+                            <label for="folioId">
+                                Phiếu tính tiền <span style="color: red;">*</span>
                             </label>
 
-                            <input
-                                type="number"
-                                id="roomAmount"
-                                placeholder="Nhập tiền phòng"
-                                min="0"
-                                required
-                            >
+                            <select id="folioId" required>
+                                <option value="">-- Chọn phiếu tính tiền --</option>
+                            </select>
 
                         </div>
 
 
-                        <!-- Tiền dịch vụ -->
-                        <div class="form-group">
-
-                            <label for="serviceAmount">
-                                Tiền dịch vụ
-                            </label>
-
-                            <input
-                                type="number"
-                                id="serviceAmount"
-                                placeholder="Nhập tiền dịch vụ"
-                                min="0"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- Thuế VAT -->
-                        <div class="form-group">
-
-                            <label for="vatAmount">
-                                Thuế VAT
-                            </label>
-
-                            <input
-                                type="number"
-                                id="vatAmount"
-                                placeholder="Nhập thuế VAT"
-                                min="0"
-                                required
-                            >
-
-                        </div>
-
-
-                        <!-- Tổng tiền -->
-                        <div class="form-group">
-
-                            <label for="totalAmount">
-                                Tổng tiền
-                            </label>
-
-                            <input
-                                type="number"
-                                id="totalAmount"
-                                placeholder="Nhập tổng tiền"
-                                min="0"
-                                required
-                            >
-
+                        <!-- Tóm tắt số tiền phiếu tính tiền -->
+                        <div id="folioSummary" style="display: none; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 16px; font-size: 13px; line-height: 1.6;">
+                            <div>Tiền trước thuế: <strong id="sumPreTax" style="color: #374151;">0 ₫</strong></div>
+                            <div>Thuế VAT (10%): <strong id="sumVat" style="color: #374151;">0 ₫</strong></div>
+                            <div style="font-size: 14px; margin-top: 4px; padding-top: 4px; border-top: 1px dashed #d1d5db;">
+                                Tổng tiền sau VAT: <strong id="sumTotal" style="color: #059669;">0 ₫</strong>
+                            </div>
                         </div>
 
 
@@ -322,16 +247,16 @@
                         <div class="form-group">
 
                             <label for="invoiceStatusForm">
-                                Trạng thái
+                                Trạng thái thanh toán
                             </label>
 
                             <select id="invoiceStatusForm">
 
-                                <option value="Chưa thanh toán">
+                                <option value="ChuaThanhToan">
                                     Chưa thanh toán
                                 </option>
 
-                                <option value="Đã thanh toán">
+                                <option value="DaThanhToan">
                                     Đã thanh toán
                                 </option>
 
@@ -354,7 +279,8 @@
 
                             <button
                                 type="submit"
-                                class="btn-primary">
+                                class="btn-primary"
+                                id="btnSaveInvoice">
 
                                 Lưu hóa đơn
 
@@ -374,203 +300,9 @@
 
 
     <!-- JavaScript -->
-    <script>
-
-        let editingInvoiceId = null;
-
-
-        // Mở form thêm hóa đơn
-        function openInvoiceForm() {
-
-            document
-                .getElementById("invoiceModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("invoiceFormTitle")
-                .innerText = "Thêm hóa đơn";
-
-            document
-                .getElementById("invoiceForm")
-                .reset();
-
-            editingInvoiceId = null;
-        }
-
-
-        // Đóng form
-        function closeInvoiceForm() {
-
-            document
-                .getElementById("invoiceModal")
-                .style.display = "none";
-
-            document
-                .getElementById("invoiceForm")
-                .reset();
-
-            editingInvoiceId = null;
-        }
-
-
-        // Tìm kiếm hóa đơn
-        function searchInvoice() {
-
-            const keyword =
-                document
-                    .getElementById("searchInvoice")
-                    .value
-                    .toLowerCase()
-                    .trim();
-
-            const rows =
-                document.querySelectorAll(
-                    "#invoiceTableBody tr"
-                );
-
-
-            rows.forEach(row => {
-
-                const rowText =
-                    row.textContent.toLowerCase();
-
-
-                if (rowText.includes(keyword)) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }
-
-            });
-
-        }
-
-
-        // Lọc hóa đơn theo trạng thái
-        function filterInvoice() {
-
-            const status =
-                document
-                    .getElementById("invoiceStatus")
-                    .value;
-
-            const rows =
-                document.querySelectorAll(
-                    "#invoiceTableBody tr"
-                );
-
-
-            rows.forEach(row => {
-
-                const rowText =
-                    row.textContent;
-
-
-                if (
-                    status === "" ||
-                    rowText.includes(status)
-                ) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }
-
-            });
-
-        }
-
-
-        // Sửa hóa đơn
-        function editInvoice(id) {
-
-            editingInvoiceId = id;
-
-            document
-                .getElementById("invoiceModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("invoiceFormTitle")
-                .innerText = "Sửa hóa đơn";
-
-            /*
-             * Khi kết nối Backend,
-             * thông tin hóa đơn sẽ được lấy
-             * theo ID từ API.
-             */
-        }
-
-
-        // Xóa hóa đơn
-        function deleteInvoice(id) {
-
-            const confirmDelete =
-                confirm(
-                    "Bạn có chắc muốn xóa hóa đơn này?"
-                );
-
-
-            if (confirmDelete) {
-
-                alert(
-                    "Chức năng xóa sẽ được thực hiện khi kết nối Backend."
-                );
-
-            }
-
-        }
-
-
-        // Lưu hóa đơn
-        document
-            .getElementById("invoiceForm")
-            .addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    const invoiceNumber =
-                        document
-                            .getElementById("invoiceNumber")
-                            .value
-                            .trim();
-
-
-                    if (invoiceNumber === "") {
-
-                        alert(
-                            "Vui lòng nhập số hóa đơn."
-                        );
-
-                        return;
-                    }
-
-
-                    alert(
-                        "Đã nhập thông tin hóa đơn "
-                        + invoiceNumber
-                        + ". Dữ liệu sẽ được lưu khi kết nối Backend."
-                    );
-
-
-                    closeInvoiceForm();
-
-                }
-            );
-
-    </script>
-
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/hoadon.js?v=5"></script>
 </body>
 
 </html>
-```

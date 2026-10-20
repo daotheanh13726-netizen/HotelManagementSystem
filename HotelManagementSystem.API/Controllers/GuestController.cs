@@ -1,14 +1,15 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HotelManagementSystem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Lễ tân")]
+    [Authorize]
     public class GuestController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,17 +19,114 @@ namespace HotelManagementSystem.API.Controllers
             _context = context;
         }
 
+        // Helper trích xuất GuestId từ Claim Token hoặc truy vấn theo UserId
+        private int? GetCurrentGuestId()
+        {
+            var guestClaim = User.FindFirst("GuestId")?.Value;
+            if (int.TryParse(guestClaim, out int gId))
+            {
+                return gId;
+            }
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdClaim, out int uId))
+            {
+                var user = _context.Users.AsNoTracking().FirstOrDefault(u => u.Id == uId);
+                return user?.GuestId;
+            }
+
+            return null;
+        }
+
         // =========================================================
-        // GET: api/Guest
-        //
-        // Ví dụ:
-        // api/Guest
-        // api/Guest?search=Nguyen
-        // api/Guest?search=090
-        // api/Guest?sortBy=FullName&sortOrder=desc
-        // api/Guest?page=1&pageSize=5
+        // GET: api/Guest/me
+        // Khách hàng xem hồ sơ cá nhân của chính mình (chống sửa GuestId/IDOR)
+        // =========================================================
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyProfile()
+        {
+            var guestId = GetCurrentGuestId();
+            if (!guestId.HasValue)
+            {
+                return NotFound(new
+                {
+                    message = "Tài khoản hiện tại chưa được liên kết với hồ sơ khách hàng."
+                });
+            }
+
+            var guest = await _context.Guests.FindAsync(guestId.Value);
+            if (guest == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy hồ sơ khách hàng."
+                });
+            }
+
+            return Ok(guest);
+        }
+
+        // =========================================================
+        // PUT: api/Guest/me
+        // Khách hàng cập nhật hồ sơ của chính mình
+        // =========================================================
+        [HttpPut("me")]
+        public async Task<IActionResult> UpdateMyProfile([FromBody] Guest guestUpdate)
+        {
+            var guestId = GetCurrentGuestId();
+            if (!guestId.HasValue)
+            {
+                return BadRequest(new
+                {
+                    message = "Tài khoản hiện tại chưa được liên kết với hồ sơ khách hàng."
+                });
+            }
+
+            var existingGuest = await _context.Guests.FindAsync(guestId.Value);
+            if (existingGuest == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy hồ sơ khách hàng."
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(guestUpdate.FullName))
+            {
+                return BadRequest(new
+                {
+                    message = "Họ tên khách hàng không được để trống."
+                });
+            }
+
+            existingGuest.FullName = guestUpdate.FullName.Trim();
+            existingGuest.Phone = guestUpdate.Phone?.Trim();
+            existingGuest.Email = guestUpdate.Email?.Trim();
+            existingGuest.IdentityNumber = guestUpdate.IdentityNumber?.Trim();
+            existingGuest.Address = guestUpdate.Address?.Trim();
+
+            // Đồng bộ sang bảng User nếu có
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdClaim, out int uId))
+            {
+                var user = await _context.Users.FindAsync(uId);
+                if (user != null)
+                {
+                    user.FullName = existingGuest.FullName;
+                    user.Email = existingGuest.Email;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(existingGuest);
+        }
+
+        // =========================================================
+        // GET: api/Guest (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpGet]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> GetAll(
             string? search,
             string? sortBy = "FullName",
@@ -36,9 +134,6 @@ namespace HotelManagementSystem.API.Controllers
             int page = 1,
             int pageSize = 10)
         {
-            // =====================================================
-            // KIỂM TRA TRANG
-            // =====================================================
             if (page < 1)
             {
                 return BadRequest(new
@@ -47,9 +142,6 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // =====================================================
-            // KIỂM TRA SỐ BẢN GHI MỖI TRANG
-            // =====================================================
             if (pageSize < 1 || pageSize > 100)
             {
                 return BadRequest(new
@@ -58,15 +150,8 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // =====================================================
-            // TẠO QUERY
-            // =====================================================
             IQueryable<Guest> query = _context.Guests;
 
-            // =====================================================
-            // TÌM KIẾM
-            // Họ tên / Số điện thoại / Email / CCCD
-            // =====================================================
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
@@ -78,11 +163,7 @@ namespace HotelManagementSystem.API.Controllers
                     (g.IdentityNumber ?? "").Contains(search));
             }
 
-            // =====================================================
-            // SẮP XẾP
-            // =====================================================
-            bool descending =
-                sortOrder?.ToLower() == "desc";
+            bool descending = sortOrder?.ToLower() == "desc";
 
             switch (sortBy?.ToLower())
             {
@@ -121,29 +202,14 @@ namespace HotelManagementSystem.API.Controllers
                     break;
             }
 
-            // =====================================================
-            // TỔNG SỐ KHÁCH HÀNG
-            // =====================================================
             int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-            // =====================================================
-            // TỔNG SỐ TRANG
-            // =====================================================
-            int totalPages =
-                (int)Math.Ceiling(
-                    totalItems / (double)pageSize);
-
-            // =====================================================
-            // PHÂN TRANG
-            // =====================================================
             var guests = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // =====================================================
-            // KẾT QUẢ
-            // =====================================================
             return Ok(new
             {
                 data = guests,
@@ -158,13 +224,13 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================================================
-        // GET: api/Guest/1
+        // GET: api/Guest/1 (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> GetById(int id)
         {
-            var guest = await _context.Guests
-                .FindAsync(id);
+            var guest = await _context.Guests.FindAsync(id);
 
             if (guest == null)
             {
@@ -178,9 +244,10 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================================================
-        // POST: api/Guest
+        // POST: api/Guest (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpPost]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Create(Guest guest)
         {
             if (string.IsNullOrWhiteSpace(guest.FullName))
@@ -192,22 +259,19 @@ namespace HotelManagementSystem.API.Controllers
             }
 
             _context.Guests.Add(guest);
-
             await _context.SaveChangesAsync();
 
             return Ok(guest);
         }
 
         // =========================================================
-        // PUT: api/Guest/1
+        // PUT: api/Guest/1 (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(
-            int id,
-            Guest guest)
+        [Authorize(Roles = "Admin,Lễ tân")]
+        public async Task<IActionResult> Update(int id, Guest guest)
         {
-            var existingGuest = await _context.Guests
-                .FindAsync(id);
+            var existingGuest = await _context.Guests.FindAsync(id);
 
             if (existingGuest == null)
             {
@@ -237,13 +301,13 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================================================
-        // DELETE: api/Guest/1
+        // DELETE: api/Guest/1 (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Delete(int id)
         {
-            var guest = await _context.Guests
-                .FindAsync(id);
+            var guest = await _context.Guests.FindAsync(id);
 
             if (guest == null)
             {
@@ -254,7 +318,6 @@ namespace HotelManagementSystem.API.Controllers
             }
 
             _context.Guests.Remove(guest);
-
             await _context.SaveChangesAsync();
 
             return Ok(new

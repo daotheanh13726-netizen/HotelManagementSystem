@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Models;
+using HotelManagementSystem.API.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelManagementSystem.API.Data
@@ -143,6 +143,16 @@ namespace HotelManagementSystem.API.Data
                 .WithMany()
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            // =========================
+            // USER -> GUEST
+            // =========================
+            modelBuilder.Entity<User>()
+                .HasOne<Guest>()
+                .WithMany()
+                .HasForeignKey(u => u.GuestId)
+                .OnDelete(DeleteBehavior.SetNull);
 
 
             // =========================

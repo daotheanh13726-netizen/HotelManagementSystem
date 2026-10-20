@@ -1,4 +1,7 @@
-﻿namespace HotelManagementSystem.API.Models
+﻿
+using System;
+
+namespace HotelManagementSystem.API.Models
 {
     public class Guest
     {
@@ -13,5 +16,7 @@
         public string? IdentityNumber { get; set; }
 
         public string? Address { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

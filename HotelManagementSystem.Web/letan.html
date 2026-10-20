@@ -1,5 +1,4 @@
-```html
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -8,7 +7,7 @@
 
     <title>Lễ tân - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -24,56 +23,21 @@
             </div>
 
             <ul class="menu">
-
-                <li class="active">
-                    <a href="letan.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <li>
-                    <a href="phong.html">
-                        Phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="khachhang.html">
-                        Khách hàng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="datphong.html">
-                        Đặt phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="checkin.html">
-                        Check-in
-                    </a>
-                </li>
-
-                <li>
-                    <a href="checkout.html">
-                        Check-out
-                    </a>
-                </li>
-
-                <li>
-                    <a href="lichphong.html">
-                        Lịch phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="dichvu.html">
-                        Dịch vụ
-                    </a>
-                </li>
-
+                <li class="active"><a href="letan.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -207,7 +171,9 @@
 
     </div>
 
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/letan.js"></script>
 </body>
 
 </html>
-```

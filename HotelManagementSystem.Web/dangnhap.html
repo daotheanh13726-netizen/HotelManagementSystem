@@ -5,9 +5,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Đăng nhập - Hệ thống quản lý khách sạn</title>
+    <title>Đăng nhập & Đăng ký - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <style>
+        .auth-tabs {
+            display: flex;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 20px;
+        }
+        .auth-tab-btn {
+            flex: 1;
+            padding: 10px 0;
+            border: none;
+            background: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s ease;
+        }
+        .auth-tab-btn.active {
+            color: #243447;
+            border-bottom-color: #243447;
+        }
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .switch-form-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #64748b;
+        }
+        .switch-form-link a {
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .switch-form-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 
 <body>
@@ -23,9 +67,20 @@
             </div>
 
 
-            <!-- Phần đăng nhập -->
+            <!-- Phần form -->
             <div class="login-form">
 
+                <!-- Tabs chuyển đổi Đăng nhập / Đăng ký -->
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab-btn active" id="tabLoginBtn" onclick="switchAuthTab('login')">
+                        Đăng nhập
+                    </button>
+                    <button type="button" class="auth-tab-btn" id="tabRegisterBtn" onclick="switchAuthTab('register')">
+                        Đăng ký khách hàng
+                    </button>
+                </div>
+
+                <!-- FORM ĐĂNG NHẬP -->
                 <form id="loginForm">
 
                     <!-- Tên đăng nhập -->
@@ -99,9 +154,73 @@
 
 
                     <!-- Nút đăng nhập -->
-                    <button type="submit" class="btn-login">
+                    <button type="submit" class="btn-login" id="btnLoginSubmit">
                         Đăng nhập
                     </button>
+
+                    <div class="switch-form-link">
+                        Chưa có tài khoản khách hàng?
+                        <a href="javascript:void(0)" onclick="switchAuthTab('register')">Đăng ký ngay</a>
+                    </div>
+
+                </form>
+
+                <!-- FORM ĐĂNG KÝ KHÁCH HÀNG -->
+                <form id="registerForm" style="display: none;">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="regUsername">Tên đăng nhập *</label>
+                            <input type="text" id="regUsername" placeholder="Tên đăng nhập" required autocomplete="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="regFullName">Họ và tên *</label>
+                            <input type="text" id="regFullName" placeholder="Nguyễn Văn A" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="regPassword">Mật khẩu *</label>
+                            <input type="password" id="regPassword" placeholder="Nhập mật khẩu" required autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="regConfirmPassword">Xác nhận mật khẩu *</label>
+                            <input type="password" id="regConfirmPassword" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="regPhone">Số điện thoại *</label>
+                            <input type="tel" id="regPhone" placeholder="0901234567" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <input type="email" id="regEmail" placeholder="email@example.com">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="regIdentityNumber">Số CCCD / Hộ chiếu</label>
+                            <input type="text" id="regIdentityNumber" placeholder="Số định danh cá nhân">
+                        </div>
+                        <div class="form-group">
+                            <label for="regAddress">Địa chỉ</label>
+                            <input type="text" id="regAddress" placeholder="Địa chỉ hiện tại">
+                        </div>
+                    </div>
+
+                    <!-- Nút đăng ký -->
+                    <button type="submit" class="btn-login" id="btnRegisterSubmit">
+                        Đăng ký tài khoản
+                    </button>
+
+                    <div class="switch-form-link">
+                        Đã có tài khoản?
+                        <a href="javascript:void(0)" onclick="switchAuthTab('login')">Đăng nhập tại đây</a>
+                    </div>
 
                 </form>
 
@@ -112,7 +231,7 @@
     </div>
 
 
-    <!-- JavaScript đăng nhập -->
+    <!-- JavaScript đăng nhập & đăng ký -->
     <script src="js/dangnhap.js"></script>
 
 </body>

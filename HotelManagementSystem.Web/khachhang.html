@@ -7,7 +7,7 @@
 
     <title>Quản lý khách hàng - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -23,50 +23,24 @@
             </div>
 
             <ul class="menu">
-
-                <li>
-                    <a href="admin.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <li>
-                    <a href="phong.html">
-                        Phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="loaiphong.html">
-                        Loại phòng
-                    </a>
-                </li>
-
-                <li class="active">
-                    <a href="khachhang.html">
-                        Khách hàng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="datphong.html">
-                        Đặt phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="dichvu.html">
-                        Dịch vụ
-                    </a>
-                </li>
-
-                <li>
-                    <a href="hoadon.html">
-                        Hóa đơn
-                    </a>
-                </li>
-
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li class="active"><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -151,6 +125,7 @@
                                     <th>ID</th>
                                     <th>Họ và tên</th>
                                     <th>Số điện thoại</th>
+                                    <th>Số CCCD / CMND</th>
                                     <th>Email</th>
                                     <th>Địa chỉ</th>
                                     <th>Thao tác</th>
@@ -159,10 +134,12 @@
 
                             </thead>
 
-
-                            <!-- Chưa kết nối Backend nên để trống -->
                             <tbody id="customerTableBody">
-
+                                <tr>
+                                    <td colspan="7" style="text-align: center; color: #6b7280;">
+                                        Đang tải dữ liệu khách hàng...
+                                    </td>
+                                </tr>
                             </tbody>
 
                         </table>
@@ -199,7 +176,7 @@
                         <div class="form-group">
 
                             <label for="customerName">
-                                Họ và tên
+                                Họ và tên <span style="color: red;">*</span>
                             </label>
 
                             <input
@@ -223,7 +200,22 @@
                                 type="tel"
                                 id="customerPhone"
                                 placeholder="Nhập số điện thoại"
-                                required
+                            >
+
+                        </div>
+
+
+                        <!-- Số CCCD / CMND -->
+                        <div class="form-group">
+
+                            <label for="customerIdentityNumber">
+                                Số CCCD / CMND
+                            </label>
+
+                            <input
+                                type="text"
+                                id="customerIdentityNumber"
+                                placeholder="Nhập số CCCD / CMND"
                             >
 
                         </div>
@@ -273,7 +265,8 @@
 
                             <button
                                 type="submit"
-                                class="btn-primary">
+                                class="btn-primary"
+                                id="btnSaveCustomer">
                                 Lưu khách hàng
                             </button>
 
@@ -291,186 +284,9 @@
 
 
     <!-- JavaScript -->
-    <script>
-
-        let editingCustomerId = null;
-
-
-        // Mở form thêm khách hàng
-        function openCustomerForm() {
-
-            document
-                .getElementById("customerModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("customerFormTitle")
-                .innerText = "Thêm khách hàng";
-
-            document
-                .getElementById("customerForm")
-                .reset();
-
-            editingCustomerId = null;
-        }
-
-
-        // Đóng form
-        function closeCustomerForm() {
-
-            document
-                .getElementById("customerModal")
-                .style.display = "none";
-
-            document
-                .getElementById("customerForm")
-                .reset();
-
-            editingCustomerId = null;
-        }
-
-
-        // Tìm kiếm khách hàng
-        function searchCustomer() {
-
-            const keyword =
-                document
-                    .getElementById("searchCustomer")
-                    .value
-                    .toLowerCase()
-                    .trim();
-
-            const rows =
-                document.querySelectorAll(
-                    "#customerTableBody tr"
-                );
-
-
-            rows.forEach(row => {
-
-                const customerName =
-                    row.cells[1]
-                        .textContent
-                        .toLowerCase();
-
-                const customerPhone =
-                    row.cells[2]
-                        .textContent
-                        .toLowerCase();
-
-
-                if (
-                    customerName.includes(keyword) ||
-                    customerPhone.includes(keyword)
-                ) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }
-
-            });
-
-        }
-
-
-        // Sửa khách hàng
-        function editCustomer(id) {
-
-            editingCustomerId = id;
-
-            document
-                .getElementById("customerModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("customerFormTitle")
-                .innerText = "Sửa khách hàng";
-
-            /*
-             * Khi kết nối Backend,
-             * thông tin khách hàng sẽ được lấy
-             * theo ID từ API.
-             */
-        }
-
-
-        // Xóa khách hàng
-        function deleteCustomer(id) {
-
-            const confirmDelete =
-                confirm(
-                    "Bạn có chắc muốn xóa khách hàng này?"
-                );
-
-
-            if (confirmDelete) {
-
-                alert(
-                    "Chức năng xóa sẽ được thực hiện khi kết nối Backend."
-                );
-
-            }
-
-        }
-
-
-        // Lưu khách hàng
-        document
-            .getElementById("customerForm")
-            .addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    const name =
-                        document
-                            .getElementById("customerName")
-                            .value
-                            .trim();
-
-
-                    if (name === "") {
-
-                        alert(
-                            "Vui lòng nhập họ và tên."
-                        );
-
-                        return;
-                    }
-
-
-                    if (editingCustomerId === null) {
-
-                        alert(
-                            "Đã nhập thông tin khách hàng: "
-                            + name
-                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
-                        );
-
-                    } else {
-
-                        alert(
-                            "Đã cập nhật thông tin khách hàng: "
-                            + name
-                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
-                        );
-
-                    }
-
-
-                    closeCustomerForm();
-
-                }
-            );
-
-    </script>
-
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/khachhang.js?v=4"></script>
 </body>
 
 </html>

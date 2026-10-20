@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ namespace HotelManagementSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Kế toán")]
+    [Authorize(Roles = "Admin,Kế toán,Lễ tân")]
     public class PhieuTinhTienController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -22,8 +22,28 @@ namespace HotelManagementSystem.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            var paidPhieuIds = await _context.HoaDons
+                .Where(h => h.TrangThai == "DaThanhToan")
+                .Select(h => h.PhieuTinhTienId)
+                .ToListAsync();
+
             var phieuTinhTiens = await _context.PhieuTinhTiens
                 .ToListAsync();
+
+            bool hasChanges = false;
+            foreach (var phieu in phieuTinhTiens)
+            {
+                if (paidPhieuIds.Contains(phieu.Id) && phieu.TrangThai != "DaThanhToan")
+                {
+                    phieu.TrangThai = "DaThanhToan";
+                    hasChanges = true;
+                }
+            }
+
+            if (hasChanges)
+            {
+                await _context.SaveChangesAsync();
+            }
 
             return Ok(phieuTinhTiens);
         }

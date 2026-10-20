@@ -1,4 +1,3 @@
-﻿
 using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -9,7 +8,7 @@ namespace HotelManagementSystem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Lễ tân")]
+    [Authorize]
     public class RoomController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -21,7 +20,6 @@ namespace HotelManagementSystem.API.Controllers
 
         // GET: api/Room
         // Khách có thể xem danh sách phòng.
-        // Ví dụ: api/Room?status=0&page=1&pageSize=100
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll(
@@ -71,18 +69,20 @@ namespace HotelManagementSystem.API.Controllers
                     r.RoomTypeId == roomTypeId.Value);
             }
 
-            bool descending =
-                string.Equals(
-                    sortOrder,
-                    "desc",
-                    StringComparison.OrdinalIgnoreCase);
+            bool descending = sortOrder?.ToLower() == "desc";
 
-            switch (sortBy?.ToLowerInvariant())
+            switch (sortBy?.ToLower())
             {
                 case "id":
                     query = descending
                         ? query.OrderByDescending(r => r.Id)
                         : query.OrderBy(r => r.Id);
+                    break;
+
+                case "roomnumber":
+                    query = descending
+                        ? query.OrderByDescending(r => r.RoomNumber)
+                        : query.OrderBy(r => r.RoomNumber);
                     break;
 
                 case "status":
@@ -97,18 +97,13 @@ namespace HotelManagementSystem.API.Controllers
                         : query.OrderBy(r => r.RoomTypeId);
                     break;
 
-                case "roomnumber":
                 default:
-                    query = descending
-                        ? query.OrderByDescending(r => r.RoomNumber)
-                        : query.OrderBy(r => r.RoomNumber);
+                    query = query.OrderBy(r => r.RoomNumber);
                     break;
             }
 
             int totalItems = await query.CountAsync();
-
-            int totalPages = (int)Math.Ceiling(
-                totalItems / (double)pageSize);
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             var rooms = await query
                 .Skip((page - 1) * pageSize)
@@ -121,15 +116,17 @@ namespace HotelManagementSystem.API.Controllers
                 pagination = new
                 {
                     currentPage = page,
-                    pageSize,
-                    totalItems,
-                    totalPages
+                    pageSize = pageSize,
+                    totalItems = totalItems,
+                    totalPages = totalPages
                 }
             });
         }
 
         // GET: api/Room/1
+        // Xem chi tiết phòng
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var room = await _context.Rooms
@@ -149,6 +146,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // POST: api/Room
         [HttpPost]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Create(Room room)
         {
             if (string.IsNullOrWhiteSpace(room.RoomNumber))
@@ -191,6 +189,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // PUT: api/Room/1
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Update(
             int id,
             Room room)
@@ -250,6 +249,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // DELETE: api/Room/1
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Delete(int id)
         {
             var room = await _context.Rooms.FindAsync(id);

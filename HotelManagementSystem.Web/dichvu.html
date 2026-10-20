@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -8,7 +7,7 @@
 
     <title>Quản lý dịch vụ - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -24,50 +23,24 @@
             </div>
 
             <ul class="menu">
-
-                <li>
-                    <a href="admin.html">
-                        Tổng quan
-                    </a>
-                </li>
-
-                <li>
-                    <a href="phong.html">
-                        Phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="loaiphong.html">
-                        Loại phòng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="khachhang.html">
-                        Khách hàng
-                    </a>
-                </li>
-
-                <li>
-                    <a href="datphong.html">
-                        Đặt phòng
-                    </a>
-                </li>
-
-                <li class="active">
-                    <a href="dichvu.html">
-                        Dịch vụ
-                    </a>
-                </li>
-
-                <li>
-                    <a href="hoadon.html">
-                        Hóa đơn
-                    </a>
-                </li>
-
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li class="active"><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -83,14 +56,14 @@
                     <h1>Quản lý dịch vụ</h1>
 
                     <p>
-                        Quản lý các dịch vụ cung cấp cho khách hàng
+                        Quản lý các dịch vụ và đơn giá cung cấp cho khách hàng
                     </p>
 
                 </div>
 
                 <div class="header-right">
 
-                    <span>
+                    <span id="adminWelcome">
                         Xin chào, Quản trị viên
                     </span>
 
@@ -110,7 +83,7 @@
                         <h2>Danh sách dịch vụ</h2>
 
                         <p>
-                            Quản lý tên và giá các dịch vụ
+                            Quản lý tên, đơn vị tính và bảng giá dịch vụ
                         </p>
 
                     </div>
@@ -133,8 +106,7 @@
                         type="text"
                         id="searchService"
                         class="search-box"
-                        placeholder="Tìm kiếm dịch vụ..."
-                        onkeyup="searchService()"
+                        placeholder="Tìm kiếm theo tên dịch vụ, đơn vị tính..."
                     >
 
                 </div>
@@ -155,7 +127,11 @@
 
                                     <th>Tên dịch vụ</th>
 
+                                    <th>Đơn vị tính</th>
+
                                     <th>Đơn giá</th>
+
+                                    <th>Mô tả</th>
 
                                     <th>Thao tác</th>
 
@@ -163,10 +139,12 @@
 
                             </thead>
 
-
-                            <!-- Chưa kết nối Backend nên để trống -->
                             <tbody id="serviceTableBody">
-
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: #6b7280; padding: 20px;">
+                                        Đang tải danh sách dịch vụ...
+                                    </td>
+                                </tr>
                             </tbody>
 
                         </table>
@@ -205,32 +183,74 @@
                         <div class="form-group">
 
                             <label for="serviceName">
-                                Tên dịch vụ
+                                Tên dịch vụ <span style="color: red;">*</span>
                             </label>
 
                             <input
                                 type="text"
                                 id="serviceName"
-                                placeholder="Nhập tên dịch vụ"
+                                placeholder="Nhập tên dịch vụ (ví dụ: Nước suối, Giặt ủi, Nước ngọt)"
                                 required
                             >
 
                         </div>
 
 
-                        <!-- Đơn giá -->
+                        <!-- Đơn vị tính -->
                         <div class="form-group">
 
-                            <label for="servicePrice">
-                                Đơn giá
+                            <label for="serviceUnit">
+                                Đơn vị tính
                             </label>
 
                             <input
-                                type="number"
-                                id="servicePrice"
-                                placeholder="Nhập đơn giá"
-                                min="0"
-                                required
+                                type="text"
+                                id="serviceUnit"
+                                placeholder="Nhập đơn vị (ví dụ: Lon, Chai, Lần, Giờ, Bộ)"
+                            >
+
+                        </div>
+
+
+                        <!-- Đơn giá có đuôi .000 VNĐ -->
+                        <div class="form-group">
+
+                            <label for="servicePrice">
+                                Đơn giá <span style="color: red;">*</span>
+                            </label>
+
+                            <div style="display: flex; align-items: center;">
+
+                                <input
+                                    type="text"
+                                    id="servicePrice"
+                                    placeholder="Nhập giá (ví dụ: 15 hoặc 50)"
+                                    style="flex: 1; border-top-right-radius: 0; border-bottom-right-radius: 0;"
+                                    required
+                                >
+
+                                <span style="background: #e5e7eb; padding: 10px 14px; border: 1px solid #d1d5db; border-left: none; border-top-right-radius: 6px; border-bottom-right-radius: 6px; font-weight: 700; color: #374151; white-space: nowrap;">
+                                    .000 VNĐ
+                                </span>
+
+                            </div>
+
+                            <small id="pricePreview" style="color: #2563eb; font-size: 13px; font-weight: 600; margin-top: 4px; display: block; min-height: 18px;"></small>
+
+                        </div>
+
+
+                        <!-- Mô tả -->
+                        <div class="form-group">
+
+                            <label for="serviceDescription">
+                                Mô tả
+                            </label>
+
+                            <input
+                                type="text"
+                                id="serviceDescription"
+                                placeholder="Nhập mô tả thêm về dịch vụ"
                             >
 
                         </div>
@@ -250,7 +270,8 @@
 
                             <button
                                 type="submit"
-                                class="btn-primary">
+                                class="btn-primary"
+                                id="saveServiceButton">
 
                                 Lưu dịch vụ
 
@@ -270,193 +291,9 @@
 
 
     <!-- JavaScript -->
-    <script>
-
-        let editingServiceId = null;
-
-
-        // Mở form thêm dịch vụ
-        function openServiceForm() {
-
-            document
-                .getElementById("serviceModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("serviceFormTitle")
-                .innerText = "Thêm dịch vụ";
-
-            document
-                .getElementById("serviceForm")
-                .reset();
-
-            editingServiceId = null;
-        }
-
-
-        // Đóng form
-        function closeServiceForm() {
-
-            document
-                .getElementById("serviceModal")
-                .style.display = "none";
-
-            document
-                .getElementById("serviceForm")
-                .reset();
-
-            editingServiceId = null;
-        }
-
-
-        // Tìm kiếm dịch vụ
-        function searchService() {
-
-            const keyword =
-                document
-                    .getElementById("searchService")
-                    .value
-                    .toLowerCase()
-                    .trim();
-
-            const rows =
-                document.querySelectorAll(
-                    "#serviceTableBody tr"
-                );
-
-
-            rows.forEach(row => {
-
-                const rowText =
-                    row.textContent.toLowerCase();
-
-
-                if (rowText.includes(keyword)) {
-
-                    row.style.display = "";
-
-                } else {
-
-                    row.style.display = "none";
-
-                }
-
-            });
-
-        }
-
-
-        // Sửa dịch vụ
-        function editService(id) {
-
-            editingServiceId = id;
-
-            document
-                .getElementById("serviceModal")
-                .style.display = "flex";
-
-            document
-                .getElementById("serviceFormTitle")
-                .innerText = "Sửa dịch vụ";
-
-            /*
-             * Khi kết nối Backend,
-             * thông tin dịch vụ sẽ được lấy
-             * theo ID từ API.
-             */
-        }
-
-
-        // Xóa dịch vụ
-        function deleteService(id) {
-
-            const confirmDelete =
-                confirm(
-                    "Bạn có chắc muốn xóa dịch vụ này?"
-                );
-
-
-            if (confirmDelete) {
-
-                alert(
-                    "Chức năng xóa sẽ được thực hiện khi kết nối Backend."
-                );
-
-            }
-
-        }
-
-
-        // Lưu dịch vụ
-        document
-            .getElementById("serviceForm")
-            .addEventListener(
-                "submit",
-                function (event) {
-
-                    event.preventDefault();
-
-
-                    const name =
-                        document
-                            .getElementById("serviceName")
-                            .value
-                            .trim();
-
-
-                    const price =
-                        document
-                            .getElementById("servicePrice")
-                            .value;
-
-
-                    if (name === "") {
-
-                        alert(
-                            "Vui lòng nhập tên dịch vụ."
-                        );
-
-                        return;
-                    }
-
-
-                    if (price === "" || Number(price) < 0) {
-
-                        alert(
-                            "Vui lòng nhập đơn giá hợp lệ."
-                        );
-
-                        return;
-                    }
-
-
-                    if (editingServiceId === null) {
-
-                        alert(
-                            "Đã nhập thông tin dịch vụ: "
-                            + name
-                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
-                        );
-
-                    } else {
-
-                        alert(
-                            "Đã cập nhật thông tin dịch vụ: "
-                            + name
-                            + ". Dữ liệu sẽ được lưu khi kết nối Backend."
-                        );
-
-                    }
-
-
-                    closeServiceForm();
-
-                }
-            );
-
-    </script>
-
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/dichvu.js?v=5"></script>
 </body>
 
 </html>
-```

@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ namespace HotelManagementSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Kế toán")]
+    [Authorize(Roles = "Admin,Kế toán,Lễ tân")]
     public class ChiTietPhieuTinhTienController : ControllerBase
     {
         private readonly AppDbContext _context;

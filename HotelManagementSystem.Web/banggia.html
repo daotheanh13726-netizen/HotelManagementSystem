@@ -1,11 +1,10 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bảng giá - Hệ thống quản lý khách sạn</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 
@@ -13,43 +12,30 @@
 
     <!-- Sidebar -->
     <aside class="sidebar">
-        <div class="logo">
+        <div class="sidebar-header">
             <h2>HOTEL</h2>
             <p>Quản lý khách sạn</p>
         </div>
 
         <ul class="menu">
-            <li>
-                <a href="admin.html">Tổng quan</a>
-            </li>
-            <li>
-                <a href="phong.html">Phòng</a>
-            </li>
-            <li>
-                <a href="loaiphong.html">Loại phòng</a>
-            </li>
-            <li class="active">
-                <a href="banggia.html">Bảng giá</a>
-            </li>
-            <li>
-                <a href="khachhang.html">Khách hàng</a>
-            </li>
-            <li>
-                <a href="datphong.html">Đặt phòng</a>
-            </li>
-            <li>
-            <a href="lichphong.html">Lịch phòng</a>
-            </li>   
-            <li>
-                <a href="dichvu.html">Dịch vụ</a>
-            </li>
-            <li>
-                <a href="hoadon.html">Hóa đơn</a>
-            </li>
-            <li>
-                <a href="baocao.html">Báo cáo</a>
-            </li>
+            <li><a href="admin.html">Tổng quan</a></li>
+            <li><a href="phong.html">Phòng</a></li>
+            <li><a href="loaiphong.html">Loại phòng</a></li>
+            <li class="active"><a href="banggia.html">Bảng giá</a></li>
+            <li><a href="khachhang.html">Khách hàng</a></li>
+            <li><a href="datphong.html">Đặt phòng</a></li>
+            <li><a href="checkin.html">Check-in</a></li>
+            <li><a href="checkout.html">Check-out</a></li>
+            <li><a href="lichphong.html">Lịch phòng</a></li>
+            <li><a href="dichvu.html">Dịch vụ</a></li>
+            <li><a href="hoadon.html">Hóa đơn</a></li>
+            <li><a href="baocao.html">Báo cáo</a></li>
         </ul>
+
+        <div class="sidebar-actions">
+            <button type="button" id="backButton">← Quay lại</button>
+            <button type="button" id="logoutButton">Đăng xuất</button>
+        </div>
     </aside>
 
     <!-- Nội dung chính -->
@@ -252,82 +238,10 @@
 
 </div>
 
-<script>
 
-    function openRateForm() {
-        document.getElementById("rateFormSection").style.display = "block";
 
-        document.getElementById("rateFormSection").scrollIntoView({
-            behavior: "smooth"
-        });
-    }
-
-    function closeRateForm() {
-        document.getElementById("rateFormSection").style.display = "none";
-    }
-
-    function saveRate() {
-
-        const roomType =
-            document.getElementById("roomType").value;
-
-        const seasonName =
-            document.getElementById("seasonName").value.trim();
-
-        const startDate =
-            document.getElementById("startDate").value;
-
-        const endDate =
-            document.getElementById("endDate").value;
-
-        const nightPrice =
-            document.getElementById("nightPrice").value;
-
-        const hourPrice =
-            document.getElementById("hourPrice").value;
-
-        if (roomType === "") {
-            alert("Vui lòng chọn loại phòng.");
-            return;
-        }
-
-        if (seasonName === "") {
-            alert("Vui lòng nhập tên mùa.");
-            return;
-        }
-
-        if (startDate === "") {
-            alert("Vui lòng chọn ngày bắt đầu.");
-            return;
-        }
-
-        if (endDate === "") {
-            alert("Vui lòng chọn ngày kết thúc.");
-            return;
-        }
-
-        if (endDate < startDate) {
-            alert("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu.");
-            return;
-        }
-
-        if (nightPrice === "" || Number(nightPrice) < 0) {
-            alert("Vui lòng nhập giá theo đêm hợp lệ.");
-            return;
-        }
-
-        if (hourPrice === "" || Number(hourPrice) < 0) {
-            alert("Vui lòng nhập giá theo giờ hợp lệ.");
-            return;
-        }
-
-        alert("Bảng giá sẽ được lưu khi kết nối Backend.");
-
-        closeRateForm();
-    }
-
-</script>
-
+<script src="js/global.js"></script>
+<script src="js/navigation.js?v=3"></script>
+<script src=js/banggia.js></script>
 </body>
 </html>
-```

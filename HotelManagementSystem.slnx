@@ -3,4 +3,5 @@
     <File Path=".gitignore" />
   </Folder>
   <Project Path="HotelManagementSystem.API/HotelManagementSystem.API.csproj" />
+  <Project Path="HotelManagementSystem.Gateway/HotelManagementSystem.Gateway.csproj" />
 </Solution>

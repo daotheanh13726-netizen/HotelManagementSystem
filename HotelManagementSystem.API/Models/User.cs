@@ -1,4 +1,4 @@
-﻿namespace HotelManagementSystem.API.Models
+namespace HotelManagementSystem.API.Models
 {
     public class User
     {
@@ -13,6 +13,8 @@
         public string? Email { get; set; }
 
         public int RoleId { get; set; }
+
+        public int? GuestId { get; set; }
 
         public bool IsActive { get; set; } = true;
 

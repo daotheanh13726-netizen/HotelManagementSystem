@@ -1,5 +1,4 @@
-```html
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -8,7 +7,7 @@
 
     <title>Quản trị viên - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -24,7 +23,6 @@
             </div>
 
             <ul class="menu">
-
                 <li class="active">
                     <a href="admin.html">Tổng quan</a>
                 </li>
@@ -50,6 +48,14 @@
                 </li>
 
                 <li>
+                    <a href="checkin.html">Check-in</a>
+                </li>
+
+                <li>
+                    <a href="checkout.html">Check-out</a>
+                </li>
+
+                <li>
                     <a href="lichphong.html">Lịch phòng</a>
                 </li>
 
@@ -64,11 +70,19 @@
                 <li>
                     <a href="baocao.html">Báo cáo</a>
                 </li>
-
             </ul>
 
-        </aside>
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">
+                    ← Quay lại
+                </button>
 
+                <button type="button" id="logoutButton">
+                    Đăng xuất
+                </button>
+            </div>
+
+        </aside>
 
         <!-- NỘI DUNG CHÍNH -->
         <main class="main-content">
@@ -85,37 +99,35 @@
                 </div>
 
                 <div class="header-right">
-                    <span>Xin chào, Quản trị viên</span>
+                    <span id="adminWelcome">Xin chào, Quản trị viên</span>
                 </div>
 
             </header>
-
 
             <!-- THỐNG KÊ -->
             <section class="dashboard-cards">
 
                 <div class="dashboard-card">
                     <h3>Tổng số phòng</h3>
-                    <strong>-</strong>
+                    <strong id="totalRoomCount">-</strong>
                 </div>
 
                 <div class="dashboard-card">
                     <h3>Phòng đang sử dụng</h3>
-                    <strong>-</strong>
+                    <strong id="occupiedRoomCount">-</strong>
                 </div>
 
                 <div class="dashboard-card">
                     <h3>Đặt phòng hôm nay</h3>
-                    <strong>-</strong>
+                    <strong id="todayBookingCount">-</strong>
                 </div>
 
                 <div class="dashboard-card">
                     <h3>Doanh thu</h3>
-                    <strong>-</strong>
+                    <strong id="revenueCount">-</strong>
                 </div>
 
             </section>
-
 
             <!-- HOẠT ĐỘNG GẦN ĐÂY -->
             <section class="content-section">
@@ -144,8 +156,12 @@
                                 </tr>
                             </thead>
 
-                            <!-- Chưa kết nối Backend nên để trống -->
                             <tbody id="activityTableBody">
+                                <tr>
+                                    <td colspan="3">
+                                        Đang tải hoạt động...
+                                    </td>
+                                </tr>
                             </tbody>
 
                         </table>
@@ -160,7 +176,11 @@
 
     </div>
 
+    <!-- SCRIPT ĐIỀU HƯỚNG & DỮ LIỆU -->
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
+    <script src="js/admin.js"></script>
+
 </body>
 
 </html>
-```

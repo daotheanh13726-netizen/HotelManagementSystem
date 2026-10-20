@@ -1,14 +1,15 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace HotelManagementSystem.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Lễ tân")]
+    [Authorize]
     public class ReservationController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,20 +19,237 @@ namespace HotelManagementSystem.API.Controllers
             _context = context;
         }
 
+        // Helper trích xuất GuestId từ Claim Token hoặc truy vấn theo UserId
+        private int? GetCurrentGuestId()
+        {
+            var guestClaim = User.FindFirst("GuestId")?.Value;
+            if (int.TryParse(guestClaim, out int gId))
+            {
+                return gId;
+            }
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userIdClaim, out int uId))
+            {
+                var user = _context.Users.AsNoTracking().FirstOrDefault(u => u.Id == uId);
+                return user?.GuestId;
+            }
+
+            return null;
+        }
+
         // =========================================================
-        // GET: api/Reservation
-        //
-        // Ví dụ:
-        // api/Reservation
-        // api/Reservation?search=DP001
-        // api/Reservation?guestId=1
-        // api/Reservation?status=0
-        // api/Reservation?fromDate=2026-09-01
-        // api/Reservation?toDate=2026-09-30
-        // api/Reservation?sortBy=CheckInDate&sortOrder=desc
-        // api/Reservation?page=1&pageSize=5
+        // GET: api/Reservation/my-reservations
+        // Khách hàng xem danh sách đặt phòng của chính mình (chống sửa GuestId/IDOR)
+        // =========================================================
+        [HttpGet("my-reservations")]
+        public async Task<IActionResult> GetMyReservations()
+        {
+            var guestId = GetCurrentGuestId();
+            if (!guestId.HasValue)
+            {
+                return BadRequest(new
+                {
+                    message = "Tài khoản hiện tại chưa được liên kết với hồ sơ khách hàng."
+                });
+            }
+
+            // Chỉ truy vấn theo GuestId lấy từ token bảo chứng
+            var reservations = await _context.Reservations
+                .AsNoTracking()
+                .Where(r => r.GuestId == guestId.Value)
+                .OrderByDescending(r => r.BookingDate)
+                .ToListAsync();
+
+            return Ok(reservations);
+        }
+
+        // =========================================================
+        // PUT: api/Reservation/my-reservations/{id}/cancel
+        // Khách hàng tự hủy đơn đặt phòng của chính mình (khi còn Chờ xác nhận)
+        // =========================================================
+        [HttpPut("my-reservations/{id}/cancel")]
+        public async Task<IActionResult> CancelMyReservation(int id)
+        {
+            var guestId = GetCurrentGuestId();
+            if (!guestId.HasValue)
+            {
+                return BadRequest(new
+                {
+                    message = "Tài khoản chưa được liên kết với hồ sơ khách hàng."
+                });
+            }
+
+            var reservation = await _context.Reservations
+                .FirstOrDefaultAsync(r => r.Id == id && r.GuestId == guestId.Value);
+
+            if (reservation == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy đơn đặt phòng của bạn."
+                });
+            }
+
+            if (reservation.Status != ReservationStatus.ChoXacNhan)
+            {
+                return BadRequest(new
+                {
+                    message = "Chỉ có thể hủy đơn đặt phòng khi đang ở trạng thái 'Chờ xác nhận'."
+                });
+            }
+
+            reservation.Status = ReservationStatus.DaHuy;
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Hủy đặt phòng thành công.",
+                reservation
+            });
+        }
+
+        // =========================================================
+        // POST: api/Reservation/book-online
+        // Khách hàng tự đặt phòng trực tuyến (gán tự động GuestId của chính tài khoản)
+        // Hoàn thiện: kiểm tra ngày nhận, ngày trả, tồn tại, bảo trì, trùng lịch và transaction
+        // =========================================================
+        [HttpPost("book-online")]
+        public async Task<IActionResult> BookOnline([FromBody] CustomerBookingDto request)
+        {
+            var guestId = GetCurrentGuestId();
+            if (!guestId.HasValue)
+            {
+                return BadRequest(new
+                {
+                    message = "Tài khoản chưa liên kết hồ sơ khách hàng để đặt phòng."
+                });
+            }
+
+            // 1. Kiểm tra ngày nhận phòng
+            if (request.CheckInDate.Date < DateTime.Today)
+            {
+                return BadRequest(new
+                {
+                    message = "Ngày nhận phòng không thể ở trong quá khứ."
+                });
+            }
+
+            // 2. Kiểm tra ngày trả phòng phải sau ngày nhận phòng
+            if (request.CheckOutDate <= request.CheckInDate)
+            {
+                return BadRequest(new
+                {
+                    message = "Ngày trả phòng phải sau ngày nhận phòng."
+                });
+            }
+
+            // 3. Kiểm tra số lượng khách
+            if (request.NumberOfGuests < 1)
+            {
+                return BadRequest(new
+                {
+                    message = "Số lượng khách phải lớn hơn hoặc bằng 1."
+                });
+            }
+
+            // 4. Nếu có chọn phòng: kiểm tra phòng tồn tại, không bảo trì, không bị trùng lịch
+            if (request.RoomId.HasValue)
+            {
+                var room = await _context.Rooms.FindAsync(request.RoomId.Value);
+                if (room == null)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Phòng được chọn không tồn tại."
+                    });
+                }
+
+                if (room.Status == RoomStatus.BaoTri)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Phòng hiện đang bảo trì, vui lòng chọn phòng khác."
+                    });
+                }
+
+                // Kiểm tra trùng lịch với các đơn đặt phòng chưa hủy
+                var isOverbooked = await _context.ReservationRooms
+                    .AnyAsync(rr =>
+                        rr.RoomId == request.RoomId.Value &&
+                        _context.Reservations.Any(r =>
+                            r.Id == rr.ReservationId &&
+                            r.Status != ReservationStatus.DaHuy &&
+                            r.CheckInDate < request.CheckOutDate &&
+                            r.CheckOutDate > request.CheckInDate
+                        )
+                    );
+
+                if (isOverbooked)
+                {
+                    return BadRequest(new
+                    {
+                        message = "Phòng đã có khách đặt trong khoảng thời gian này. Vui lòng chọn ngày hoặc phòng khác."
+                    });
+                }
+            }
+
+            // Tạo mã đặt phòng duy nhất: DP + timestamp
+            var reservationCode = "DP" + DateTime.Now.ToString("yyMMddHHmmss");
+
+            var reservation = new Reservation
+            {
+                ReservationCode = reservationCode,
+                GuestId = guestId.Value,
+                BookingDate = DateTime.Now,
+                CheckInDate = request.CheckInDate,
+                CheckOutDate = request.CheckOutDate,
+                Status = ReservationStatus.ChoXacNhan,
+                NumberOfGuests = request.NumberOfGuests,
+                Notes = request.Notes
+            };
+
+            // 5. Sử dụng Transaction để tạo đơn và chi tiết đặt phòng nhất quán
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                _context.Reservations.Add(reservation);
+                await _context.SaveChangesAsync();
+
+                if (request.RoomId.HasValue)
+                {
+                    var reservationRoom = new ReservationRoom
+                    {
+                        ReservationId = reservation.Id,
+                        RoomId = request.RoomId.Value
+                    };
+                    _context.ReservationRooms.Add(reservationRoom);
+                    await _context.SaveChangesAsync();
+                }
+
+                await transaction.CommitAsync();
+
+                return Ok(new
+                {
+                    message = "Đặt phòng trực tuyến thành công. Vui lòng chờ lễ tân xác nhận.",
+                    reservation
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(500, new
+                {
+                    message = "Lỗi khi xử lý đặt phòng: " + ex.Message
+                });
+            }
+        }
+
+        // =========================================================
+        // GET: api/Reservation (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpGet]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> GetAll(
             string? search,
             int? guestId,
@@ -43,9 +261,6 @@ namespace HotelManagementSystem.API.Controllers
             int page = 1,
             int pageSize = 10)
         {
-            // =====================================================
-            // KIỂM TRA TRANG
-            // =====================================================
             if (page < 1)
             {
                 return BadRequest(new
@@ -54,9 +269,6 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // =====================================================
-            // KIỂM TRA PAGE SIZE
-            // =====================================================
             if (pageSize < 1 || pageSize > 100)
             {
                 return BadRequest(new
@@ -65,12 +277,7 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // =====================================================
-            // KIỂM TRA KHOẢNG NGÀY
-            // =====================================================
-            if (fromDate.HasValue &&
-                toDate.HasValue &&
-                fromDate.Value > toDate.Value)
+            if (fromDate.HasValue && toDate.HasValue && fromDate.Value > toDate.Value)
             {
                 return BadRequest(new
                 {
@@ -78,137 +285,72 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // =====================================================
-            // TẠO QUERY
-            // =====================================================
-            IQueryable<Reservation> query =
-                _context.Reservations;
+            IQueryable<Reservation> query = _context.Reservations;
 
-            // =====================================================
-            // TÌM KIẾM THEO MÃ ĐẶT PHÒNG
-            // =====================================================
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
-
-                query = query.Where(r =>
-                    r.ReservationCode.Contains(search));
+                query = query.Where(r => r.ReservationCode.Contains(search));
             }
 
-            // =====================================================
-            // LỌC THEO KHÁCH HÀNG
-            // =====================================================
             if (guestId.HasValue)
             {
-                query = query.Where(r =>
-                    r.GuestId == guestId.Value);
+                query = query.Where(r => r.GuestId == guestId.Value);
             }
 
-            // =====================================================
-            // LỌC THEO TRẠNG THÁI
-            // =====================================================
             if (status.HasValue)
             {
-                query = query.Where(r =>
-                    r.Status == status.Value);
+                query = query.Where(r => r.Status == status.Value);
             }
 
-            // =====================================================
-            // LỌC TỪ NGÀY
-            // =====================================================
             if (fromDate.HasValue)
             {
-                query = query.Where(r =>
-                    r.CheckInDate >= fromDate.Value);
+                query = query.Where(r => r.CheckInDate >= fromDate.Value);
             }
 
-            // =====================================================
-            // LỌC ĐẾN NGÀY
-            // =====================================================
             if (toDate.HasValue)
             {
-                query = query.Where(r =>
-                    r.CheckInDate <= toDate.Value);
+                query = query.Where(r => r.CheckInDate <= toDate.Value);
             }
 
-            // =====================================================
-            // SẮP XẾP
-            // =====================================================
-            bool descending =
-                sortOrder?.ToLower() == "desc";
+            bool descending = sortOrder?.ToLower() == "desc";
 
             switch (sortBy?.ToLower())
             {
                 case "id":
-                    query = descending
-                        ? query.OrderByDescending(r => r.Id)
-                        : query.OrderBy(r => r.Id);
+                    query = descending ? query.OrderByDescending(r => r.Id) : query.OrderBy(r => r.Id);
                     break;
-
                 case "reservationcode":
-                    query = descending
-                        ? query.OrderByDescending(r => r.ReservationCode)
-                        : query.OrderBy(r => r.ReservationCode);
+                    query = descending ? query.OrderByDescending(r => r.ReservationCode) : query.OrderBy(r => r.ReservationCode);
                     break;
-
                 case "guestid":
-                    query = descending
-                        ? query.OrderByDescending(r => r.GuestId)
-                        : query.OrderBy(r => r.GuestId);
+                    query = descending ? query.OrderByDescending(r => r.GuestId) : query.OrderBy(r => r.GuestId);
                     break;
-
                 case "checkindate":
-                    query = descending
-                        ? query.OrderByDescending(r => r.CheckInDate)
-                        : query.OrderBy(r => r.CheckInDate);
+                    query = descending ? query.OrderByDescending(r => r.CheckInDate) : query.OrderBy(r => r.CheckInDate);
                     break;
-
                 case "checkoutdate":
-                    query = descending
-                        ? query.OrderByDescending(r => r.CheckOutDate)
-                        : query.OrderBy(r => r.CheckOutDate);
+                    query = descending ? query.OrderByDescending(r => r.CheckOutDate) : query.OrderBy(r => r.CheckOutDate);
                     break;
-
                 case "status":
-                    query = descending
-                        ? query.OrderByDescending(r => r.Status)
-                        : query.OrderBy(r => r.Status);
+                    query = descending ? query.OrderByDescending(r => r.Status) : query.OrderBy(r => r.Status);
                     break;
-
                 case "numberofguests":
-                    query = descending
-                        ? query.OrderByDescending(r => r.NumberOfGuests)
-                        : query.OrderBy(r => r.NumberOfGuests);
+                    query = descending ? query.OrderByDescending(r => r.NumberOfGuests) : query.OrderBy(r => r.NumberOfGuests);
                     break;
-
                 default:
                     query = query.OrderBy(r => r.CheckInDate);
                     break;
             }
 
-            // =====================================================
-            // TỔNG SỐ ĐƠN
-            // =====================================================
             int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
 
-            // =====================================================
-            // TỔNG SỐ TRANG
-            // =====================================================
-            int totalPages =
-                (int)Math.Ceiling(
-                    totalItems / (double)pageSize);
-
-            // =====================================================
-            // PHÂN TRANG
-            // =====================================================
             var reservations = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            // =====================================================
-            // KẾT QUẢ
-            // =====================================================
             return Ok(new
             {
                 data = reservations,
@@ -223,13 +365,13 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================================================
-        // GET: api/Reservation/1
+        // GET: api/Reservation/1 (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> GetById(int id)
         {
-            var reservation = await _context.Reservations
-                .FindAsync(id);
+            var reservation = await _context.Reservations.FindAsync(id);
 
             if (reservation == null)
             {
@@ -243,28 +385,21 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================================================
-        // POST: api/Reservation
+        // POST: api/Reservation (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpPost]
-        public async Task<IActionResult> Create(
-            Reservation reservation)
+        [Authorize(Roles = "Admin,Lễ tân")]
+        public async Task<IActionResult> Create(Reservation reservation)
         {
-            // Kiểm tra ngày nhận/trả phòng
-            if (reservation.CheckOutDate <=
-                reservation.CheckInDate)
+            if (reservation.CheckOutDate <= reservation.CheckInDate)
             {
                 return BadRequest(new
                 {
-                    message =
-                        "Ngày trả phòng phải sau ngày nhận phòng."
+                    message = "Ngày trả phòng phải sau ngày nhận phòng."
                 });
             }
 
-            // Kiểm tra khách hàng
-            var guestExists = await _context.Guests
-                .AnyAsync(g =>
-                    g.Id == reservation.GuestId);
-
+            var guestExists = await _context.Guests.AnyAsync(g => g.Id == reservation.GuestId);
             if (!guestExists)
             {
                 return BadRequest(new
@@ -274,24 +409,19 @@ namespace HotelManagementSystem.API.Controllers
             }
 
             _context.Reservations.Add(reservation);
-
             await _context.SaveChangesAsync();
 
             return Ok(reservation);
         }
 
         // =========================================================
-        // PUT: api/Reservation/1
+        // PUT: api/Reservation/1 (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(
-            int id,
-            Reservation reservation)
+        [Authorize(Roles = "Admin,Lễ tân")]
+        public async Task<IActionResult> Update(int id, Reservation reservation)
         {
-            // Tìm đơn đặt phòng
-            var existingReservation =
-                await _context.Reservations
-                    .FindAsync(id);
+            var existingReservation = await _context.Reservations.FindAsync(id);
 
             if (existingReservation == null)
             {
@@ -301,22 +431,15 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Kiểm tra ngày
-            if (reservation.CheckOutDate <=
-                reservation.CheckInDate)
+            if (reservation.CheckOutDate <= reservation.CheckInDate)
             {
                 return BadRequest(new
                 {
-                    message =
-                        "Ngày trả phòng phải sau ngày nhận phòng."
+                    message = "Ngày trả phòng phải sau ngày nhận phòng."
                 });
             }
 
-            // Kiểm tra khách hàng
-            var guestExists = await _context.Guests
-                .AnyAsync(g =>
-                    g.Id == reservation.GuestId);
-
+            var guestExists = await _context.Guests.AnyAsync(g => g.Id == reservation.GuestId);
             if (!guestExists)
             {
                 return BadRequest(new
@@ -325,27 +448,13 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Cập nhật thông tin
-            existingReservation.ReservationCode =
-                reservation.ReservationCode;
-
-            existingReservation.GuestId =
-                reservation.GuestId;
-
-            existingReservation.CheckInDate =
-                reservation.CheckInDate;
-
-            existingReservation.CheckOutDate =
-                reservation.CheckOutDate;
-
-            existingReservation.Status =
-                reservation.Status;
-
-            existingReservation.NumberOfGuests =
-                reservation.NumberOfGuests;
-
-            existingReservation.Notes =
-                reservation.Notes;
+            existingReservation.ReservationCode = reservation.ReservationCode;
+            existingReservation.GuestId = reservation.GuestId;
+            existingReservation.CheckInDate = reservation.CheckInDate;
+            existingReservation.CheckOutDate = reservation.CheckOutDate;
+            existingReservation.Status = reservation.Status;
+            existingReservation.NumberOfGuests = reservation.NumberOfGuests;
+            existingReservation.Notes = reservation.Notes;
 
             await _context.SaveChangesAsync();
 
@@ -353,15 +462,13 @@ namespace HotelManagementSystem.API.Controllers
         }
 
         // =========================================================
-        // PUT: api/Reservation/1/cancel
+        // PUT: api/Reservation/1/cancel (Dành cho Admin, Lễ tân)
         // =========================================================
         [HttpPut("{id}/cancel")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Cancel(int id)
         {
-            // Tìm đơn đặt phòng
-            var reservation =
-                await _context.Reservations
-                    .FindAsync(id);
+            var reservation = await _context.Reservations.FindAsync(id);
 
             if (reservation == null)
             {
@@ -371,40 +478,29 @@ namespace HotelManagementSystem.API.Controllers
                 });
             }
 
-            // Kiểm tra đơn đã hủy
-            if (reservation.Status ==
-                ReservationStatus.DaHuy)
+            if (reservation.Status == ReservationStatus.DaHuy)
             {
                 return BadRequest(new
                 {
-                    message =
-                        "Đơn đặt phòng đã được hủy."
+                    message = "Đơn đặt phòng đã được hủy."
                 });
             }
 
-            // Không cho hủy đã check-in/check-out
-            if (reservation.Status ==
-                    ReservationStatus.DaCheckIn ||
-                reservation.Status ==
-                    ReservationStatus.DaCheckOut)
+            if (reservation.Status == ReservationStatus.DaCheckIn ||
+                reservation.Status == ReservationStatus.DaCheckOut)
             {
                 return BadRequest(new
                 {
-                    message =
-                        "Không thể hủy đơn đã check-in hoặc check-out."
+                    message = "Không thể hủy đơn đã check-in hoặc check-out."
                 });
             }
 
-            // Chuyển trạng thái
-            reservation.Status =
-                ReservationStatus.DaHuy;
-
+            reservation.Status = ReservationStatus.DaHuy;
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                message =
-                    "Hủy đặt phòng thành công.",
+                message = "Hủy đặt phòng thành công.",
                 reservation
             });
         }

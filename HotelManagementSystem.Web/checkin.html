@@ -1,196 +1,236 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Check-in - Hotel Management System</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Check-in - Hệ thống quản lý khách sạn</title>
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Hotel Management</h2>
-        <ul>
-            <li><a href="letan.html">Tổng quan</a></li>
-            <li><a href="phong.html">Quản lý phòng</a></li>
-            <li><a href="khachhang.html">Khách hàng</a></li>
-            <li><a href="datphong.html">Đặt phòng</a></li>
-            <li><a href="checkin.html" class="active">Check-in</a></li>
-            <li><a href="lichphong.html">Lịch phòng</a></li>
-            <li><a href="checkout.html">Check-out</a></li>
-            <li><a href="dichvu.html">Dịch vụ</a></li>
-            <li><a href="hoadon.html">Hóa đơn</a></li>
-            <li><a href="dangnhap.html" id="logoutLink">Đăng xuất</a></li>
-        </ul>
-    </div>
 
-    <main class="main-content">
-        <header class="page-header">
-            <h1>Quản lý Check-in</h1>
-            <p>Tiếp nhận khách và xác nhận nhận phòng</p>
-        </header>
-
-        <section class="content-section">
-            <div class="section-header">
-                <h2>Danh sách đặt phòng</h2>
-                <button type="button" class="btn-primary" id="refreshButton">
-                    Tải lại danh sách
-                </button>
+    <div class="layout">
+        <!-- Thanh menu bên trái -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>HOTEL</h2>
+                <p>Quản lý khách sạn</p>
             </div>
 
-            <div class="form-group">
-                <label for="searchInput">Tìm theo mã đặt phòng</label>
-                <div class="search-container">
+            <ul class="menu">
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li class="active"><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
+            </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
+        </aside>
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Check-in</h1>
+                    <p>Tiếp nhận khách và xác nhận nhận phòng</p>
+                </div>
+                <div class="header-right">
+                    <span id="adminWelcome">Xin chào, Quản trị viên</span>
+                </div>
+            </header>
+
+            <!-- Nội dung quản lý Check-in -->
+            <div class="content">
+        <section class="content-section">
+
+                <!-- Tiêu đề và thao tác -->
+                <div class="page-header">
+                    <div>
+                        <h2>Danh sách đặt phòng</h2>
+                        <p>Danh sách khách đặt phòng chờ làm thủ tục nhận phòng</p>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <a href="datphong.html" class="btn-primary" style="display: inline-flex; align-items: center; text-decoration: none;">
+                            + Đặt phòng mới
+                        </a>
+                        <button type="button" class="btn-secondary" id="refreshButton">
+                            Tải lại
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tìm kiếm và lọc -->
+                <div class="toolbar">
                     <input
                         type="text"
                         id="searchInput"
-                        placeholder="Nhập mã đặt phòng..."
+                        placeholder="Tìm theo mã đặt phòng, khách hàng hoặc số phòng..."
+                        style="width: 320px;"
                     >
-                    <button type="button" class="btn-primary" id="searchButton">
-                        Tìm kiếm
-                    </button>
-                    <button type="button" class="btn-secondary" id="clearSearchButton">
-                        Xóa tìm kiếm
-                    </button>
+                    <select id="statusFilter">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="pending">Chờ nhận phòng</option>
+                        <option value="checkedin">Đã check-in</option>
+                        <option value="checkedout">Đã check-out</option>
+                    </select>
                 </div>
-            </div>
 
-            <p id="pageMessage" role="status" aria-live="polite"></p>
+                <p id="pageMessage" role="status" aria-live="polite" style="margin-bottom: 15px; font-weight: 600;"></p>
 
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Mã đặt phòng</th>
-                            <th>Khách hàng</th>
-                            <th>Phòng</th>
-                            <th>Ngày nhận</th>
-                            <th>Ngày trả</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="checkInTableBody">
-                        <tr>
-                            <td colspan="7">Đang tải dữ liệu...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+                <!-- Bảng danh sách đặt phòng -->
+                <div class="table-card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã đặt phòng</th>
+                                    <th>Khách hàng</th>
+                                    <th>Phòng</th>
+                                    <th>Ngày nhận</th>
+                                    <th>Ngày trả</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="checkInTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 25px;">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-        <section class="content-section" id="checkInFormSection" hidden>
-            <div class="section-header">
-                <h2>Xác nhận Check-in</h2>
-                <button type="button" class="btn-secondary" id="closeFormButton">
-                    Đóng
-                </button>
-            </div>
+            </section>
+        </div>
+        </main>
+    </div>
+
+    <!-- Modal xác nhận Check-in -->
+    <div id="checkInModal" class="modal">
+        <div class="modal-content" style="width: 520px; max-width: calc(100% - 30px); margin: 40px auto; max-height: 90vh; overflow-y: auto;">
+            <span class="close" id="closeFormButton" onclick="closeCheckInForm()">&times;</span>
+            <h2 id="modalTitle">Xác nhận Check-in</h2>
 
             <form id="checkInForm">
-                <input type="hidden" id="bookingId">
+                <input type="hidden" id="checkInReservationId">
 
-                <div class="form-group">
-                    <label for="guestName">Khách hàng</label>
-                    <input type="text" id="guestName" readonly>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 12px;">
+                    <div>
+                        <label for="checkInBookingCode" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Mã đặt phòng</label>
+                        <input type="text" id="checkInBookingCode" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc; font-weight: 600;">
+                    </div>
+                    <div>
+                        <label for="guestName" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Khách hàng</label>
+                        <input type="text" id="guestName" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc; font-weight: 600;">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="roomNumber">Phòng đã được gán</label>
-                    <input type="text" id="roomNumber" readonly>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 12px;">
+                    <div>
+                        <label for="roomNumber" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Phòng đã gán</label>
+                        <input type="text" id="roomNumber" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc; font-weight: 600; color: #2563eb;">
+                    </div>
+                    <div>
+                        <label for="numberOfGuests" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Số khách</label>
+                        <input type="text" id="numberOfGuests" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc;">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="checkInDate">Ngày nhận phòng dự kiến</label>
-                    <input type="text" id="checkInDate" readonly>
+                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 12px;">
+                    <div>
+                        <label for="checkInDate" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Ngày nhận dự kiến</label>
+                        <input type="text" id="checkInDate" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc;">
+                    </div>
+                    <div>
+                        <label for="expectedCheckOut" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Ngày trả dự kiến</label>
+                        <input type="text" id="expectedCheckOut" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc;">
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="numberOfGuests">Số khách</label>
-                    <input type="number" id="numberOfGuests" readonly>
+                <div style="margin-bottom: 15px;">
+                    <label for="note" style="display: block; font-weight: 600; margin-bottom: 5px; font-size: 14px;">Ghi chú đặt phòng</label>
+                    <textarea id="note" rows="2" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background-color: #f8fafc; font-family: inherit; resize: vertical;"></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="note">Ghi chú đặt phòng</label>
-                    <textarea id="note" rows="3" readonly></textarea>
-                </div>
-
-                <p>
-                    Khi xác nhận, hệ thống sẽ ghi nhận thời gian check-in thực tế
-                    tại Backend.
+                <p style="color: #6b7280; font-size: 13px; margin: 10px 0 16px; line-height: 1.5;">
+                    Khi xác nhận, hệ thống sẽ tự động cập nhật thời gian nhận phòng thực tế và chuyển trạng thái phòng sang <strong>"Đang sử dụng"</strong>.
                 </p>
 
-                <button type="submit" class="btn-primary" id="confirmCheckInButton">
-                    Xác nhận Check-in
-                </button>
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="button" class="btn-secondary" onclick="closeCheckInForm()" style="flex: 1; padding: 12px;">
+                        Hủy / Đóng
+                    </button>
+                    <button type="submit" class="btn-primary" id="confirmCheckInButton" style="flex: 2; padding: 12px; margin-top: 0;">
+                        Xác nhận Check-in
+                    </button>
+                </div>
             </form>
-        </section>
-    </main>
+        </div>
+    </div>
+
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
 
     <script>
-        const API_BASE_URL = "https://localhost:44365/api";
+        const CHECKIN_API = (typeof API_BASE_URL !== "undefined" && API_BASE_URL)
+            ? API_BASE_URL
+            : (window.location.protocol.startsWith("http") ? `${window.location.origin}/api` : "http://localhost:5054/api");
 
-        let reservations = [];
         let reservationDetails = [];
         let selectedReservation = null;
 
         document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("refreshButton")
-                .addEventListener("click", loadReservations);
+            document.getElementById("refreshButton")?.addEventListener("click", loadReservations);
+            document.getElementById("searchInput")?.addEventListener("input", applyFilters);
+            document.getElementById("statusFilter")?.addEventListener("change", applyFilters);
+            document.getElementById("checkInForm")?.addEventListener("submit", confirmCheckIn);
 
-            document.getElementById("searchButton")
-                .addEventListener("click", searchReservations);
-
-            document.getElementById("clearSearchButton")
-                .addEventListener("click", () => {
-                    document.getElementById("searchInput").value = "";
-                    renderReservations(reservationDetails);
-                });
-
-            document.getElementById("searchInput")
-                .addEventListener("keydown", event => {
-                    if (event.key === "Enter") {
-                        event.preventDefault();
-                        searchReservations();
-                    }
-                });
-
-            document.getElementById("closeFormButton")
-                .addEventListener("click", closeCheckInForm);
-
-            document.getElementById("checkInForm")
-                .addEventListener("submit", confirmCheckIn);
-
-            document.getElementById("logoutLink")
-                .addEventListener("click", () => {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("userId");
-                    localStorage.removeItem("username");
-                    localStorage.removeItem("fullName");
-                    localStorage.removeItem("roleName");
-                });
+            window.addEventListener("click", (event) => {
+                const modal = document.getElementById("checkInModal");
+                if (event.target === modal) {
+                    closeCheckInForm();
+                }
+            });
 
             loadReservations();
         });
 
         async function apiRequest(url, options = {}) {
             const token = localStorage.getItem("token");
-
             if (!token) {
-                throw new Error("Bạn chưa đăng nhập. Vui lòng đăng nhập lại.");
+                throw new Error("Bạn chưa đăng nhập. Vui lòng đăng nhập để tiếp tục.");
             }
 
             const response = await fetch(url, {
                 ...options,
                 headers: {
-                    ...(options.headers || {}),
+                    "Accept": "application/json",
                     "Authorization": `Bearer ${token}`,
-                    ...(options.body ? { "Content-Type": "application/json" } : {})
+                    ...(options.body ? { "Content-Type": "application/json" } : {}),
+                    ...(options.headers || {})
                 }
             });
 
+            if (response.status === 401) {
+                throw new Error("Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.");
+            }
+            if (response.status === 403) {
+                throw new Error("Tài khoản của bạn không có quyền thực hiện chức năng này.");
+            }
+
             const text = await response.text();
             let result = null;
-
             if (text) {
                 try {
                     result = JSON.parse(text);
@@ -199,22 +239,13 @@
                 }
             }
 
-            if (response.status === 401) {
-                throw new Error("Phiên đăng nhập đã hết hạn hoặc token không hợp lệ. Hãy đăng nhập lại.");
-            }
-
-            if (response.status === 403) {
-                throw new Error("Tài khoản của bạn không có quyền thực hiện thao tác này.");
-            }
-
             if (!response.ok) {
                 throw new Error(
                     result?.message ||
                     (typeof result === "string" ? result : "") ||
-                    `Yêu cầu thất bại (${response.status}).`
+                    `Yêu cầu thất bại (HTTP ${response.status}).`
                 );
             }
-
             return result;
         }
 
@@ -235,275 +266,287 @@
 
         function formatDate(value) {
             if (!value) return "—";
-
             const date = new Date(value);
             if (Number.isNaN(date.getTime())) return String(value);
-
             return date.toLocaleDateString("vi-VN");
         }
 
-        function getStatusText(status) {
+        function getStatusInfo(status) {
+            const map = {
+                0: { text: "Chờ xác nhận", color: "#b45309", bg: "#fef3c7", canCheckIn: true },
+                1: { text: "Đã xác nhận", color: "#1d4ed8", bg: "#dbeafe", canCheckIn: true },
+                2: { text: "Đã hủy", color: "#b91c1c", bg: "#fee2e2", canCheckIn: false },
+                3: { text: "Đã check-in", color: "#15803d", bg: "#dcfce7", canCheckIn: false },
+                4: { text: "Đã check-out", color: "#4b5563", bg: "#f3f4f6", canCheckIn: false }
+            };
+
+            if (typeof status === "number") {
+                return map[status] || { text: `Trạng thái ${status}`, color: "#374151", bg: "#e5e7eb", canCheckIn: false };
+            }
+
             if (typeof status === "string") {
-                const normalized = status.trim().toLowerCase();
-
-                const labels = {
-                    "dahuy": "Đã hủy",
-                    "dacheckin": "Đã check-in",
-                    "dacheckout": "Đã check-out",
-                    "choxacnhan": "Chờ xác nhận",
-                    "dadat": "Đã đặt"
-                };
-
-                return labels[normalized.replace(/\s/g, "")] || status;
+                const norm = status.trim().toLowerCase().replace(/\s/g, "");
+                if (norm === "0" || norm === "choxacnhan") return map[0];
+                if (norm === "1" || norm === "daxacnhan") return map[1];
+                if (norm === "2" || norm === "dahuy") return map[2];
+                if (norm === "3" || norm === "dacheckin") return map[3];
+                if (norm === "4" || norm === "dacheckout") return map[4];
             }
 
-            return status === null || status === undefined
-                ? "Không xác định"
-                : `Trạng thái ${status}`;
-        }
-
-        function isAlreadyCheckedIn(reservation) {
-            const status = getField(reservation, "status", "Status");
-            return typeof status === "string" &&
-                status.toLowerCase().replace(/\s/g, "") === "dacheckin";
-        }
-
-        function isNotEligible(reservation) {
-            const status = getField(reservation, "status", "Status");
-
-            if (typeof status !== "string") {
-                // Backend sẽ kiểm tra trạng thái thực tế khi gọi API check-in.
-                return false;
-            }
-
-            const normalized = status.toLowerCase().replace(/\s/g, "");
-            return ["dahuy", "dacheckin", "dacheckout"].includes(normalized);
+            return { text: String(status ?? "Không xác định"), color: "#374151", bg: "#e5e7eb", canCheckIn: false };
         }
 
         async function loadReservations() {
             const tbody = document.getElementById("checkInTableBody");
-            tbody.innerHTML = '<tr><td colspan="7">Đang tải dữ liệu...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 25px; color: #555;">Đang tải danh sách đặt phòng...</td></tr>';
             setMessage("");
 
             try {
-                const result = await apiRequest(
-                    `${API_BASE_URL}/Reservation?page=1&pageSize=100`
-                );
+                // Tải danh sách đặt phòng trước
+                const bookingRes = await apiRequest(`${CHECKIN_API}/Reservation?page=1&pageSize=100`);
+                const bookings = getList(bookingRes);
 
-                reservations = getList(result);
+                // Tải song song danh sách khách, phòng, chi tiết phòng
+                const [guestRes, roomRes, rrRes] = await Promise.all([
+                    apiRequest(`${CHECKIN_API}/Guest?page=1&pageSize=100`).catch(() => []),
+                    apiRequest(`${CHECKIN_API}/Room?page=1&pageSize=100`).catch(() => []),
+                    apiRequest(`${CHECKIN_API}/ReservationRoom?page=1&pageSize=100`).catch(() => [])
+                ]);
 
-                // Lấy chi tiết phòng, khách và thông tin đặt phòng.
-                const details = await Promise.all(
-                    reservations.map(async reservation => {
+                const guests = getList(guestRes);
+                const rooms = getList(roomRes);
+                const reservationRooms = getList(rrRes);
+
+                const guestMap = new Map();
+                guests.forEach(g => {
+                    const id = getField(g, "id", "Id");
+                    if (id != null) guestMap.set(Number(id), g);
+                });
+
+                const roomMap = new Map();
+                rooms.forEach(r => {
+                    const id = getField(r, "id", "Id");
+                    if (id != null) roomMap.set(Number(id), r);
+                });
+
+                const rrMap = new Map();
+                reservationRooms.forEach(rr => {
+                    const resId = getField(rr, "reservationId", "ReservationId");
+                    if (resId != null && !rrMap.has(Number(resId))) {
+                        rrMap.set(Number(resId), rr);
+                    }
+                });
+
+                reservationDetails = await Promise.all(bookings.map(async reservation => {
+                    const resId = getField(reservation, "id", "Id");
+                    const guestId = getField(reservation, "guestId", "GuestId");
+
+                    let guest = guestId != null ? guestMap.get(Number(guestId)) : null;
+                    if (!guest && guestId != null) {
                         try {
-                            const reservationId = getField(reservation, "id", "Id");
-                            const guestId = getField(reservation, "guestId", "GuestId");
+                            const gRes = await apiRequest(`${CHECKIN_API}/Guest/${guestId}`);
+                            guest = gRes?.data ?? gRes;
+                        } catch {}
+                    }
 
-                            const [guestResult, reservationRoomResult] = await Promise.all([
-                                guestId
-                                    ? apiRequest(`${API_BASE_URL}/Guest/${guestId}`)
-                                    : Promise.resolve(null),
-                                apiRequest(
-                                    `${API_BASE_URL}/ReservationRoom?reservationId=${reservationId}`
-                                )
-                            ]);
+                    let assignedRoom = rrMap.get(Number(resId)) || null;
+                    if (!assignedRoom) {
+                        try {
+                            const rrSingle = await apiRequest(`${CHECKIN_API}/ReservationRoom?reservationId=${resId}`);
+                            const list = getList(rrSingle);
+                            assignedRoom = list[0] || null;
+                        } catch {}
+                    }
 
-                            const guest = guestResult?.data ?? guestResult;
-                            const assignedRooms = getList(reservationRoomResult);
-                            const assignedRoom = assignedRooms[0] || null;
-
-                            let room = null;
-
-                            if (assignedRoom) {
-                                const roomId = getField(assignedRoom, "roomId", "RoomId");
-
-                                if (roomId !== null) {
-                                    const roomResult = await apiRequest(
-                                        `${API_BASE_URL}/Room/${roomId}`
-                                    );
-                                    room = roomResult?.data ?? roomResult;
-                                }
+                    let room = null;
+                    if (assignedRoom) {
+                        const roomId = getField(assignedRoom, "roomId", "RoomId");
+                        if (roomId != null) {
+                            room = roomMap.get(Number(roomId)) || null;
+                            if (!room) {
+                                try {
+                                    const rRes = await apiRequest(`${CHECKIN_API}/Room/${roomId}`);
+                                    room = rRes?.data ?? rRes;
+                                } catch {}
                             }
-
-                            return {
-                                reservation,
-                                guest,
-                                assignedRoom,
-                                room,
-                                loadError: null
-                            };
-                        } catch (error) {
-                            console.error("Không tải được chi tiết đặt phòng:", error);
-
-                            return {
-                                reservation,
-                                guest: null,
-                                assignedRoom: null,
-                                room: null,
-                                loadError: error.message
-                            };
                         }
-                    })
-                );
+                    }
 
-                reservationDetails = details;
-                renderReservations(details);
+                    return {
+                        reservation,
+                        guest,
+                        assignedRoom,
+                        room
+                    };
+                }));
 
-                if (details.some(item => item.loadError)) {
-                    setMessage(
-                        "Một số thông tin chi tiết chưa tải được. Kiểm tra quyền truy cập API và dữ liệu gán phòng.",
-                        true
-                    );
-                }
+                applyFilters();
             } catch (error) {
-                console.error("Lỗi tải danh sách đặt phòng:", error);
-                tbody.innerHTML =
-                    `<tr><td colspan="7">${escapeHtml(error.message)}</td></tr>`;
-                setMessage(error.message, true);
+                console.error("Lỗi tải danh sách Check-in:", error);
+                const isAuth = error.message && error.message.includes("đăng nhập");
+                if (isAuth) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px; color: #b91c1c;">
+                        <strong>${escapeHtml(error.message)}</strong><br><br>
+                        <a href="dangnhap.html" class="btn-primary" style="display: inline-block; text-decoration: none; padding: 8px 18px;">Đến trang Đăng nhập</a>
+                    </td></tr>`;
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 25px; color: #b91c1c;">
+                        <strong>Không thể kết nối máy chủ API:</strong> ${escapeHtml(error.message)}<br>
+                        <small style="color: #6b7280; display: block; margin-top: 6px;">URL: ${CHECKIN_API}</small>
+                    </td></tr>`;
+                }
+                setMessage(`Lỗi: ${error.message}`, true);
             }
+        }
+
+        function applyFilters() {
+            const keyword = (document.getElementById("searchInput")?.value || "").trim().toLowerCase();
+            const filterVal = document.getElementById("statusFilter")?.value || "";
+
+            const filtered = reservationDetails.filter(item => {
+                const res = item.reservation;
+                const resId = getField(res, "id", "Id");
+                const code = String(getField(res, "reservationCode", "ReservationCode") ?? resId ?? "").toLowerCase();
+                const guestName = String(getField(item.guest, "fullName", "FullName", "name", "Name") ?? "").toLowerCase();
+                const roomNum = String(getField(item.room, "roomNumber", "RoomNumber") ?? "").toLowerCase();
+
+                const matchSearch = !keyword || code.includes(keyword) || guestName.includes(keyword) || roomNum.includes(keyword);
+
+                const status = getField(res, "status", "Status");
+                const statusInfo = getStatusInfo(status);
+
+                let matchStatus = true;
+                if (filterVal === "pending") {
+                    matchStatus = statusInfo.canCheckIn;
+                } else if (filterVal === "checkedin") {
+                    matchStatus = (status === 3 || String(status).toLowerCase().includes("checkin"));
+                } else if (filterVal === "checkedout") {
+                    matchStatus = (status === 4 || String(status).toLowerCase().includes("checkout"));
+                }
+
+                return matchSearch && matchStatus;
+            });
+
+            renderReservations(filtered);
         }
 
         function renderReservations(items) {
             const tbody = document.getElementById("checkInTableBody");
             tbody.innerHTML = "";
 
-            if (!items.length) {
-                tbody.innerHTML =
-                    '<tr><td colspan="7">Không có dữ liệu đặt phòng.</td></tr>';
+            if (!items || items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 30px; color: #6b7280; font-size: 14px;">Không có dữ liệu đặt phòng phù hợp.</td></tr>';
                 return;
             }
 
-            items.forEach(item => {
-                const reservation = item.reservation;
-                const reservationId = getField(reservation, "id", "Id");
-                const code = getField(reservation, "reservationCode", "ReservationCode") ?? reservationId;
-                const guestName = getField(item.guest, "fullName", "FullName", "name", "Name") ?? "Chưa có thông tin";
-                const roomNumber = getField(item.room, "roomNumber", "RoomNumber") ?? "Chưa gán phòng";
-                const checkInDate = getField(reservation, "checkInDate", "CheckInDate");
-                const checkOutDate = getField(reservation, "checkOutDate", "CheckOutDate");
-                const status = getField(reservation, "status", "Status");
-                const statusText = getStatusText(status);
+            items.forEach((item, index) => {
+                const res = item.reservation;
+                const resId = getField(res, "id", "Id");
+                const code = getField(res, "reservationCode", "ReservationCode") ?? `DP${String(resId).padStart(3, '0')}`;
+                const guestName = getField(item.guest, "fullName", "FullName", "name", "Name") ?? (getField(res, "guestId", "GuestId") ? `Khách #${getField(res, "guestId", "GuestId")}` : "Chưa có thông tin");
+                const roomNum = getField(item.room, "roomNumber", "RoomNumber") ?? (item.assignedRoom ? `Phòng #${getField(item.assignedRoom, "roomId", "RoomId")}` : "Chưa gán phòng");
+                const checkInDate = getField(res, "checkInDate", "CheckInDate");
+                const checkOutDate = getField(res, "checkOutDate", "CheckOutDate");
+                const status = getField(res, "status", "Status");
+                const statusInfo = getStatusInfo(status);
 
-                const canCheckIn = !isNotEligible(reservation) &&
-                    !!item.assignedRoom &&
-                    !!item.room &&
-                    !item.loadError;
+                const hasAssignedRoom = !!item.assignedRoom;
+
+                let actionHtml = "";
+                if (statusInfo.canCheckIn) {
+                    if (hasAssignedRoom) {
+                        actionHtml = `<button type="button" class="btn-primary" data-item-index="${index}">Check-in</button>`;
+                    } else {
+                        actionHtml = `<button type="button" class="btn-secondary" disabled title="Đơn chưa được gán phòng">Chưa gán phòng</button>`;
+                    }
+                } else if (status === 3 || String(status).toLowerCase().includes("checkin")) {
+                    actionHtml = `<span style="display:inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 500; background: #dcfce7; color: #15803d;">Đã check-in</span>`;
+                } else if (status === 4 || String(status).toLowerCase().includes("checkout")) {
+                    actionHtml = `<span style="display:inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 500; background: #f3f4f6; color: #4b5563;">Đã check-out</span>`;
+                } else {
+                    actionHtml = `<span style="display:inline-block; padding: 4px 10px; border-radius: 4px; font-size: 13px; font-weight: 500; background: #fee2e2; color: #b91c1c;">Đã hủy</span>`;
+                }
 
                 const row = document.createElement("tr");
-
                 row.innerHTML = `
-                    <td>${escapeHtml(code)}</td>
+                    <td><strong>${escapeHtml(code)}</strong></td>
                     <td>${escapeHtml(guestName)}</td>
-                    <td>${escapeHtml(roomNumber)}</td>
+                    <td>${escapeHtml(roomNum)}</td>
                     <td>${escapeHtml(formatDate(checkInDate))}</td>
                     <td>${escapeHtml(formatDate(checkOutDate))}</td>
-                    <td>${escapeHtml(statusText)}</td>
                     <td>
-                        <button
-                            type="button"
-                            class="btn-primary"
-                            data-checkin-id="${escapeHtml(reservationId)}"
-                            ${canCheckIn ? "" : "disabled"}
-                        >
-                            ${isAlreadyCheckedIn(reservation) ? "Đã check-in" : "Check-in"}
-                        </button>
+                        <span style="display:inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; background: ${statusInfo.bg}; color: ${statusInfo.color};">
+                            ${escapeHtml(statusInfo.text)}
+                        </span>
                     </td>
+                    <td>${actionHtml}</td>
                 `;
 
-                const button = row.querySelector("[data-checkin-id]");
-                if (button && canCheckIn) {
-                    button.addEventListener("click", () => openCheckInForm(item));
+                const btn = row.querySelector("button.btn-primary");
+                if (btn) {
+                    btn.addEventListener("click", () => openCheckInForm(item));
                 }
 
                 tbody.appendChild(row);
             });
         }
 
-        function searchReservations() {
-            const keyword = document.getElementById("searchInput")
-                .value.trim().toLowerCase();
-
-            if (!keyword) {
-                renderReservations(reservationDetails);
-                return;
-            }
-
-            const filtered = reservationDetails.filter(item => {
-                const code = getField(
-                    item.reservation,
-                    "reservationCode",
-                    "ReservationCode"
-                );
-
-                return String(code ?? "").toLowerCase().includes(keyword);
-            });
-
-            renderReservations(filtered);
-        }
-
         function openCheckInForm(item) {
             selectedReservation = item;
+            const res = item.reservation;
+            const resId = getField(res, "id", "Id");
+            const code = getField(res, "reservationCode", "ReservationCode") ?? `DP${String(resId).padStart(3, '0')}`;
+            const guestName = getField(item.guest, "fullName", "FullName", "name", "Name") ?? (getField(res, "guestId", "GuestId") ? `Khách #${getField(res, "guestId", "GuestId")}` : "Chưa có thông tin");
+            const roomNum = getField(item.room, "roomNumber", "RoomNumber") ?? (item.assignedRoom ? `Phòng #${getField(item.assignedRoom, "roomId", "RoomId")}` : "Chưa gán phòng");
+            const checkIn = formatDate(getField(res, "checkInDate", "CheckInDate"));
+            const checkOut = formatDate(getField(res, "checkOutDate", "CheckOutDate"));
+            const guests = getField(res, "numberOfGuests", "NumberOfGuests") ?? "1";
+            const notes = getField(res, "notes", "Notes") ?? "Không có ghi chú";
 
-            const reservation = item.reservation;
+            document.getElementById("checkInReservationId").value = resId;
+            document.getElementById("checkInBookingCode").value = code;
+            document.getElementById("guestName").value = guestName;
+            document.getElementById("roomNumber").value = roomNum;
+            document.getElementById("checkInDate").value = checkIn;
+            document.getElementById("expectedCheckOut").value = checkOut;
+            document.getElementById("numberOfGuests").value = guests;
+            document.getElementById("note").value = notes;
 
-            document.getElementById("bookingId").value =
-                getField(reservation, "id", "Id");
-
-            document.getElementById("guestName").value =
-                getField(item.guest, "fullName", "FullName", "name", "Name") ?? "";
-
-            document.getElementById("roomNumber").value =
-                getField(item.room, "roomNumber", "RoomNumber") ?? "";
-
-            document.getElementById("checkInDate").value =
-                formatDate(getField(reservation, "checkInDate", "CheckInDate"));
-
-            document.getElementById("numberOfGuests").value =
-                getField(reservation, "numberOfGuests", "NumberOfGuests") ?? "";
-
-            document.getElementById("note").value =
-                getField(reservation, "notes", "Notes") ?? "";
-
-            document.getElementById("checkInFormSection").hidden = false;
-            document.getElementById("checkInFormSection")
-                .scrollIntoView({ behavior: "smooth", block: "start" });
+            const modal = document.getElementById("checkInModal");
+            if (modal) {
+                modal.style.display = "flex";
+                modal.style.alignItems = "center";
+                modal.style.justifyContent = "center";
+            }
         }
 
         function closeCheckInForm() {
-            document.getElementById("checkInFormSection").hidden = true;
-            document.getElementById("checkInForm").reset();
+            const modal = document.getElementById("checkInModal");
+            if (modal) {
+                modal.style.display = "none";
+            }
+            document.getElementById("checkInForm")?.reset();
             selectedReservation = null;
         }
 
         async function confirmCheckIn(event) {
             event.preventDefault();
-
             if (!selectedReservation) {
-                setMessage("Bạn chưa chọn đơn đặt phòng.", true);
+                setMessage("Vui lòng chọn đơn đặt phòng cần check-in.", true);
                 return;
             }
 
-            const reservationId = getField(
-                selectedReservation.reservation,
-                "id",
-                "Id"
-            );
-
+            const resId = getField(selectedReservation.reservation, "id", "Id");
             const button = document.getElementById("confirmCheckInButton");
             button.disabled = true;
             button.textContent = "Đang xử lý...";
 
             try {
-                const result = await apiRequest(
-                    `${API_BASE_URL}/CheckIn/${reservationId}`,
-                    { method: "POST" }
-                );
+                const result = await apiRequest(`${CHECKIN_API}/CheckIn/${resId}`, {
+                    method: "POST"
+                });
 
-                setMessage(
-                    result?.message || "Check-in thành công.",
-                    false
-                );
-
+                setMessage(result?.message || "Check-in thành công!", false);
                 closeCheckInForm();
                 await loadReservations();
             } catch (error) {
@@ -517,8 +560,10 @@
 
         function setMessage(message, isError = false) {
             const element = document.getElementById("pageMessage");
+            if (!element) return;
             element.textContent = message;
-            element.style.color = isError ? "#c62828" : "#237a3b";
+            element.style.color = isError ? "#c62828" : "#15803d";
+            element.style.padding = message ? "8px 0" : "0";
         }
 
         function escapeHtml(value) {

@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,7 @@ namespace HotelManagementSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Kế toán")]
+    [Authorize(Roles = "Admin,Kế toán,Lễ tân")]
     public class ThanhToanController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -94,6 +94,14 @@ namespace HotelManagementSystem.API.Controllers
             if (tongSauThanhToan >= hoaDon.TongTien)
             {
                 hoaDon.TrangThai = "DaThanhToan";
+
+                var phieu = await _context.PhieuTinhTiens
+                    .FindAsync(hoaDon.PhieuTinhTienId);
+                if (phieu != null)
+                {
+                    phieu.TrangThai = "DaThanhToan";
+                }
+
                 await _context.SaveChangesAsync();
             }
 

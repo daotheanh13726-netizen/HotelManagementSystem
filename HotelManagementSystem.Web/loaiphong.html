@@ -1,4 +1,4 @@
-
+﻿
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -8,7 +8,7 @@
 
     <title>Quản lý loại phòng - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 
 <body>
@@ -24,36 +24,24 @@
             </div>
 
             <ul class="menu">
-
-                <li>
-                    <a href="admin.html">Tổng quan</a>
-                </li>
-
-                <li>
-                    <a href="phong.html">Phòng</a>
-                </li>
-
-                <li class="active">
-                    <a href="loaiphong.html">Loại phòng</a>
-                </li>
-
-                <li>
-                    <a href="khachhang.html">Khách hàng</a>
-                </li>
-
-                <li>
-                    <a href="datphong.html">Đặt phòng</a>
-                </li>
-
-                <li>
-                    <a href="dichvu.html">Dịch vụ</a>
-                </li>
-
-                <li>
-                    <a href="hoadon.html">Hóa đơn</a>
-                </li>
-
+                <li><a href="admin.html">Tổng quan</a></li>
+                <li><a href="phong.html">Phòng</a></li>
+                <li class="active"><a href="loaiphong.html">Loại phòng</a></li>
+                <li><a href="banggia.html">Bảng giá</a></li>
+                <li><a href="khachhang.html">Khách hàng</a></li>
+                <li><a href="datphong.html">Đặt phòng</a></li>
+                <li><a href="checkin.html">Check-in</a></li>
+                <li><a href="checkout.html">Check-out</a></li>
+                <li><a href="lichphong.html">Lịch phòng</a></li>
+                <li><a href="dichvu.html">Dịch vụ</a></li>
+                <li><a href="hoadon.html">Hóa đơn</a></li>
+                <li><a href="baocao.html">Báo cáo</a></li>
             </ul>
+
+            <div class="sidebar-actions">
+                <button type="button" id="backButton">← Quay lại</button>
+                <button type="button" id="logoutButton">Đăng xuất</button>
+            </div>
 
         </aside>
 
@@ -224,6 +212,8 @@
     </div>
 
     <!-- JavaScript kết nối Backend -->
+    <script src="js/global.js"></script>
+    <script src="js/navigation.js?v=3"></script>
     <script src="js/loaiphong.js"></script>
 
 </body>
