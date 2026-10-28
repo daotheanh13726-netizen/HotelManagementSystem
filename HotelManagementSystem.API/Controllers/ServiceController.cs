@@ -1,4 +1,4 @@
-﻿using HotelManagementSystem.API.Data;
+using HotelManagementSystem.API.Data;
 using HotelManagementSystem.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +8,6 @@ namespace HotelManagementSystem.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin,Lễ tân")]
     public class ServiceController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -18,8 +17,9 @@ namespace HotelManagementSystem.API.Controllers
             _context = context;
         }
 
-        // GET: api/Service
+        // GET: api/Service (Cho phép Khách, Lễ tân, Admin xem danh sách dịch vụ)
         [HttpGet]
+        [Authorize(Roles = "Admin,Lễ tân,Khách")]
         public async Task<IActionResult> GetAll()
         {
             var services = await _context.Services
@@ -30,6 +30,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // GET: api/Service/1
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân,Khách")]
         public async Task<IActionResult> GetById(int id)
         {
             var service = await _context.Services
@@ -46,8 +47,9 @@ namespace HotelManagementSystem.API.Controllers
             return Ok(service);
         }
 
-        // POST: api/Service
+        // POST: api/Service (Chỉ Admin và Lễ tân)
         [HttpPost]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Create(Service service)
         {
             if (service.Price < 0)
@@ -65,8 +67,9 @@ namespace HotelManagementSystem.API.Controllers
             return Ok(service);
         }
 
-        // PUT: api/Service/1
+        // PUT: api/Service/1 (Chỉ Admin và Lễ tân)
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Update(
             int id,
             Service service)
@@ -101,8 +104,9 @@ namespace HotelManagementSystem.API.Controllers
             return Ok(existingService);
         }
 
-        // DELETE: api/Service/1
+        // DELETE: api/Service/1 (Chỉ Admin và Lễ tân)
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Lễ tân")]
         public async Task<IActionResult> Delete(int id)
         {
             var service = await _context.Services

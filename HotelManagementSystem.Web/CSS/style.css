@@ -1,4 +1,4 @@
-/* =========================
+﻿/* =========================
    CÀI ĐẶT CHUNG
    ========================= */
 
@@ -43,7 +43,7 @@ textarea {
 .sidebar {
     width: 230px;
     min-height: 100vh;
-    background-color: #1f2937;
+    background-color: #682A2D;
     color: white;
     padding: 10px 0;
     flex-shrink: 0;
@@ -84,7 +84,7 @@ textarea {
 
 .sidebar .menu li a:hover,
 .sidebar .menu li.active a {
-    background-color: #374151;
+    background-color: #4a1c1e;
     color: white;
 }
 
@@ -106,7 +106,7 @@ textarea {
 
 .sidebar > a:hover,
 .sidebar > a.active {
-    background-color: #374151;
+    background-color: #4a1c1e;
     color: white;
 }
 
@@ -278,7 +278,7 @@ textarea {
 
 .btn-search {
     border: none;
-    background-color: #374151;
+    background-color: #4a1c1e;
     color: white;
     padding: 10px 18px;
     border-radius: 6px;
@@ -286,7 +286,7 @@ textarea {
 }
 
 .btn-search:hover {
-    background-color: #1f2937;
+    background-color: #682A2D;
 }
 
 .btn-edit,
@@ -917,7 +917,7 @@ tbody tr:last-child td {
     flex: 0 0 230px;
     min-height: 100vh;
     align-self: stretch;
-    background: #1f2937;
+    background: #682A2D;
     color: #fff;
     box-sizing: border-box;
     padding: 0;
@@ -981,13 +981,13 @@ tbody tr:last-child td {
 }
 
 .sidebar .menu li a:hover {
-    background: #2d3748;
+    background: #7e3337;
     color: #fff;
 }
 
 .sidebar .menu li.active > a,
 .sidebar .menu li.active > a:hover {
-    background: #374151;
+    background: #4a1c1e;
     color: #fff;
     font-weight: 600;
     border-left-color: #fff;
@@ -1075,11 +1075,11 @@ tbody tr:last-child td {
 }
 
 .sidebar .menu li:hover a {
-    background-color: rgba(255, 255, 255, 0.08);
+    background-color: #7e3337;
 }
 
 .sidebar .menu li.active a {
-    background-color: #374151;
+    background-color: #4a1c1e;
     font-weight: 600;
 }
 
@@ -1139,7 +1139,7 @@ tbody tr:last-child td {
     min-width: 230px;
     min-height: 100vh;
     padding: 0;
-    background: #1e293b;
+    background: #682A2D;
     color: #ffffff;
     display: flex;
     flex-direction: column;
@@ -1195,7 +1195,7 @@ tbody tr:last-child td {
 }
 
 .report-page .sidebar .menu li a:hover {
-    background: #334155;
+    background: #7e3337;
     color: #ffffff;
 }
 
@@ -1229,7 +1229,7 @@ tbody tr:last-child td {
 }
 
 .report-page .sidebar-actions button:hover {
-    background: #334155;
+    background: #7e3337;
 }
 
 /* NOI DUNG CHINH */
@@ -1587,7 +1587,7 @@ body .report-page > aside.sidebar {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     padding: 0 !important;
-    background: #1e293b !important;
+    background: #682A2D !important;
     scrollbar-width: thin !important;
     scrollbar-color: #4b5563 transparent !important;
 }
@@ -1623,7 +1623,7 @@ body .report-page > aside.sidebar .menu li a {
 
 body .report-page > aside.sidebar .menu li a:hover,
 body .report-page > aside.sidebar .menu li.active a {
-    background: #334155 !important;
+    background: #7e3337 !important;
     color: #ffffff !important;
 }
 
@@ -1648,4 +1648,119 @@ body .report-page > main.main-content {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
+}
+/* ==========================================================================
+   TOÀN BỘ THANH MENU TRÊN TOÀN HỆ THỐNG - MÀU NÂU ĐỎ SIENNA (#682A2D)
+   ========================================================================== */
+.sidebar,
+aside.sidebar,
+.layout > .sidebar,
+.report-page > .sidebar,
+body .report-page > aside.sidebar {
+    background: #682A2D !important;
+    background-color: #682A2D !important;
+    color: #ffffff !important;
+}
+
+.sidebar .sidebar-header,
+aside.sidebar .sidebar-header,
+.report-page .sidebar-header {
+    background: #542124 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.sidebar .sidebar-header h2,
+aside.sidebar .sidebar-header h2 {
+    color: #ffffff !important;
+}
+
+.sidebar .sidebar-header p,
+aside.sidebar .sidebar-header p {
+    color: #fca5a5 !important;
+    opacity: 0.85;
+}
+
+.sidebar .menu li a,
+aside.sidebar .menu li a,
+.report-page .sidebar .menu li a {
+    color: #fcedec !important;
+    text-decoration: none;
+    transition: background 0.18s ease, color 0.18s ease;
+}
+
+.sidebar .menu li a:hover,
+aside.sidebar .menu li a:hover,
+.report-page .sidebar .menu li a:hover,
+body .report-page > aside.sidebar .menu li a:hover {
+    background: #7e3337 !important;
+    color: #ffffff !important;
+}
+
+.sidebar .menu li.active > a,
+.sidebar .menu li.active a,
+aside.sidebar .menu li.active a,
+.report-page .sidebar .menu li.active a,
+body .report-page > aside.sidebar .menu li.active a {
+    background: #4a1c1e !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-left: 4px solid #ffffff !important;
+}
+
+.sidebar-actions,
+.report-page .sidebar-actions {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 9px !important;
+    padding: 14px 14px 16px !important;
+    margin-top: auto !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.sidebar-actions button,
+.report-page .sidebar-actions button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 10px 14px !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    background: rgba(0, 0, 0, 0.16) !important;
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.sidebar-actions button:hover,
+.report-page .sidebar-actions button:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    transform: translateY(-1px) !important;
+}
+
+#logoutButton {
+    background: rgba(220, 38, 38, 0.2) !important;
+    border-color: rgba(248, 113, 113, 0.6) !important;
+    color: #fee2e2 !important;
+}
+
+#logoutButton:hover {
+    background: #b91c1c !important;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Hiệu ứng viền focus cho các ô nhập liệu theo tông Nâu Đỏ Sienna */
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #682A2D !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(104, 42, 45, 0.18) !important;
 }

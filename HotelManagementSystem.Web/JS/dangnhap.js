@@ -39,6 +39,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.getElementById("loginForm");
     const registerForm = document.getElementById("registerForm");
 
+    // Tự động điền tài khoản nếu vừa đăng ký thành công từ dangky.html
+    const registeredUser = sessionStorage.getItem("registeredUsername");
+    if (registeredUser) {
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+
+        if (usernameInput) usernameInput.value = registeredUser;
+        if (passwordInput) passwordInput.focus();
+
+        sessionStorage.removeItem("registeredUsername");
+    }
+
     // ==========================================
     // XỬ LÝ ĐĂNG NHẬP (GIỮ NGUYÊN CHO ADMIN, LỄ TÂN, KẾ TOÁN VÀ KHÁCH)
     // ==========================================
@@ -48,7 +60,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const username = document.getElementById("username").value.trim();
             const password = document.getElementById("password").value;
-            const roleElement = document.getElementById("role");
 
             if (!username) {
                 alert("Vui lòng nhập tên đăng nhập.");
@@ -62,16 +73,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            if (roleElement && !roleElement.value) {
-                alert("Vui lòng chọn vai trò.");
-                roleElement.focus();
-                return;
-            }
-
             const submitButton = document.getElementById("btnLoginSubmit");
             if (submitButton) {
                 submitButton.disabled = true;
-                submitButton.textContent = "Đang đăng nhập...";
+                submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Đang đăng nhập...</span>';
             }
 
             try {
@@ -153,7 +158,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } finally {
                 if (submitButton) {
                     submitButton.disabled = false;
-                    submitButton.textContent = "Đăng nhập";
+                    submitButton.innerHTML = '<span>Đăng nhập</span>';
                 }
             }
         });
@@ -208,7 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const submitButton = document.getElementById("btnRegisterSubmit");
             if (submitButton) {
                 submitButton.disabled = true;
-                submitButton.textContent = "Đang đăng ký...";
+                submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Đang đăng ký...</span>';
             }
 
             try {
@@ -240,9 +245,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 const loginUser = document.getElementById("username");
                 if (loginUser) loginUser.value = username;
 
-                const roleSelect = document.getElementById("role");
-                if (roleSelect) roleSelect.value = "guest";
-
                 registerForm.reset();
                 switchAuthTab("login");
 
@@ -254,7 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } finally {
                 if (submitButton) {
                     submitButton.disabled = false;
-                    submitButton.textContent = "Đăng ký tài khoản";
+                    submitButton.innerHTML = '<i class="fa-solid fa-user-plus"></i> <span>Đăng ký tài khoản</span>';
                 }
             }
         });

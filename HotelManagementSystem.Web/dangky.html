@@ -1,0 +1,496 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Đăng ký tài khoản - Hệ thống quản lý khách sạn</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- CSS chung -->
+    <link rel="stylesheet" href="css/style.css?v=20261028_sienna_v2">
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-light: #2563eb;
+            --primary-dark: #0f172a;
+            --accent-gold: #d4af37;
+            --border-color: #e2e8f0;
+            --border-focus: #3b82f6;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 16px;
+            min-height: 100vh;
+            background: radial-gradient(circle at 15% 15%, #1e3a8a 0%, transparent 40%),
+                        radial-gradient(circle at 85% 85%, #0f172a 0%, #070b14 60%);
+            background-color: #0b111e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Ambient Glow nhẹ */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.16), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-box {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 38px 36px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Logo & Tiêu đề */
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-brand .logo-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #ffffff;
+            font-size: 22px;
+            margin-bottom: 12px;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+        }
+
+        .auth-brand h1 {
+            font-size: 23px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0 0 4px 0;
+            letter-spacing: -0.3px;
+        }
+
+        .auth-brand p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Reset Form */
+        .register-box form {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            display: block;
+        }
+
+        /* Lưới 2 cột */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 16px;
+            position: relative;
+            width: 100%;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .required-star {
+            color: #ef4444;
+            margin-left: 2px;
+        }
+
+        /* Input có icon */
+        .input-icon-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-icon-wrapper > i.field-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+
+        .form-group input {
+            width: 100%;
+            height: 45px;
+            padding: 0 16px 0 40px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 11px;
+            background-color: #f8fafc;
+            font-size: 13.5px;
+            color: var(--text-dark);
+            font-weight: 500;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+
+        .form-group input::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .form-group input:hover {
+            border-color: #cbd5e1;
+            background-color: #ffffff;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary-light);
+            background-color: #ffffff;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        }
+
+        .form-group input:focus ~ i.field-icon {
+            color: var(--primary-light);
+        }
+
+        /* Nút ẩn/hiện mật khẩu */
+        .toggle-password-btn {
+            position: absolute;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            z-index: 3;
+            transition: color 0.2s;
+        }
+
+        .toggle-password-btn:hover {
+            color: #334155;
+        }
+
+        /* Nút Đăng ký */
+        .btn-register {
+            width: 100%;
+            height: 48px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 8px 18px -4px rgba(37, 99, 235, 0.45);
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+        }
+
+        .btn-register:hover {
+            background: linear-gradient(135deg, #172554 0%, #1d4ed8 100%);
+            box-shadow: 0 10px 22px -3px rgba(37, 99, 235, 0.6);
+            transform: translateY(-1.5px);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Chuyển sang đăng nhập */
+        .switch-form-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13.5px;
+            color: var(--text-muted);
+        }
+
+        .switch-form-link a {
+            color: var(--primary-light);
+            font-weight: 700;
+            text-decoration: none;
+            margin-left: 4px;
+            transition: color 0.2s;
+        }
+
+        .switch-form-link a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Quay lại trang chủ */
+        .back-to-home {
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .back-to-home a {
+            font-size: 12.5px;
+            color: #94a3b8;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-to-home a:hover {
+            color: #334155;
+        }
+
+        @media (max-width: 580px) {
+            body {
+                padding: 16px 12px;
+            }
+
+            .register-box {
+                padding: 28px 18px;
+                border-radius: 16px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="register-container">
+
+        <div class="register-box">
+
+            <!-- Logo & Tiêu đề -->
+            <div class="auth-brand">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h1>Đăng ký tài khoản</h1>
+                <p>Dành cho khách hàng đặt phòng & sử dụng dịch vụ</p>
+            </div>
+
+            <!-- FORM ĐĂNG KÝ KHÁCH HÀNG -->
+            <form id="registerForm">
+
+                <!-- Hàng 1: Tên đăng nhập & Họ tên -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regUsername">
+                            <span>Tên đăng nhập <span class="required-star">*</span></span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="text" id="regUsername" placeholder="Nhập tên đăng nhập" required autocomplete="username">
+                            <i class="fa-solid fa-user field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regFullName">
+                            <span>Họ và tên <span class="required-star">*</span></span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="text" id="regFullName" placeholder="Nguyễn Văn A" required>
+                            <i class="fa-solid fa-address-card field-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 2: Mật khẩu & Xác nhận mật khẩu -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regPassword">
+                            <span>Mật khẩu <span class="required-star">*</span></span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="password" id="regPassword" placeholder="Nhập mật khẩu" required autocomplete="new-password">
+                            <i class="fa-solid fa-lock field-icon"></i>
+                            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('regPassword', this)" title="Ẩn/Hiện mật khẩu">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regConfirmPassword">
+                            <span>Xác nhận mật khẩu <span class="required-star">*</span></span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="password" id="regConfirmPassword" placeholder="Nhập lại mật khẩu" required autocomplete="new-password">
+                            <i class="fa-solid fa-shield-halved field-icon"></i>
+                            <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('regConfirmPassword', this)" title="Ẩn/Hiện mật khẩu">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 3: Điện thoại & Email -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regPhone">
+                            <span>Số điện thoại <span class="required-star">*</span></span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="tel" id="regPhone" placeholder="0901234567" required>
+                            <i class="fa-solid fa-phone field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regEmail">
+                            <span>Email liên hệ</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="email" id="regEmail" placeholder="email@example.com">
+                            <i class="fa-solid fa-envelope field-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hàng 4: CCCD & Địa chỉ -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="regIdentityNumber">
+                            <span>Số CCCD / Hộ chiếu</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="text" id="regIdentityNumber" placeholder="Số định danh cá nhân">
+                            <i class="fa-solid fa-id-card-clip field-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="regAddress">
+                            <span>Địa chỉ hiện tại</span>
+                        </label>
+                        <div class="input-icon-wrapper">
+                            <input type="text" id="regAddress" placeholder="Tỉnh / Thành phố">
+                            <i class="fa-solid fa-location-dot field-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút Đăng ký -->
+                <button type="submit" class="btn-register" id="btnRegisterSubmit">
+                    <i class="fa-solid fa-user-plus"></i>
+                    <span>Đăng ký tài khoản</span>
+                </button>
+
+                <!-- Link quay về Đăng nhập -->
+                <div class="switch-form-link">
+                    Đã có tài khoản?
+                    <a href="dangnhap.html">Đăng nhập tại đây</a>
+                </div>
+
+                <!-- Quay lại trang chủ -->
+                <div class="back-to-home">
+                    <a href="index.html">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại trang chủ
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- Toggle Password Script -->
+    <script>
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const icon = button.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                if (icon) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                }
+            } else {
+                input.type = 'password';
+                if (icon) {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            }
+        }
+    </script>
+
+    <!-- JavaScript xử lý đăng ký -->
+    <script src="js/dangky.js"></script>
+
+</body>
+
+</html>

@@ -61,7 +61,264 @@ namespace HotelManagementSystem.API.Controllers
                 .OrderByDescending(r => r.BookingDate)
                 .ToListAsync();
 
-            return Ok(reservations);
+            if (!reservations.Any())
+            {
+                return Ok(new List<object>());
+            }
+
+            var resIds = reservations.Select(r => r.Id).ToList();
+
+            // Lấy thông tin phòng đã gán
+            var resRooms = await _context.ReservationRooms
+                .AsNoTracking()
+                .Where(rr => resIds.Contains(rr.ReservationId))
+                .ToListAsync();
+
+            var roomIds = resRooms.Select(rr => rr.RoomId).Distinct().ToList();
+            var rooms = await _context.Rooms
+                .AsNoTracking()
+                .Where(rm => roomIds.Contains(rm.Id))
+                .ToListAsync();
+
+            var roomTypeIds = rooms.Select(rm => rm.RoomTypeId).Distinct().ToList();
+            var roomTypes = await _context.RoomTypes
+                .AsNoTracking()
+                .Where(rt => roomTypeIds.Contains(rt.Id))
+                .ToListAsync();
+
+            // Lấy phiếu tính tiền và hóa đơn liên quan
+            var phieuTinhTiens = await _context.PhieuTinhTiens
+                .AsNoTracking()
+                .Where(p => resIds.Contains(p.DatPhongId))
+                .ToListAsync();
+
+            var phieuIds = phieuTinhTiens.Select(p => p.Id).ToList();
+            var hoaDons = await _context.HoaDons
+                .AsNoTracking()
+                .Where(h => phieuIds.Contains(h.PhieuTinhTienId))
+                .ToListAsync();
+
+            // Tổng hợp DTO phản hồi giàu thông tin
+            var result = new List<object>();
+            foreach (var r in reservations)
+            {
+                var rr = resRooms.FirstOrDefault(x => x.ReservationId == r.Id);
+                var rm = rr != null ? rooms.FirstOrDefault(x => x.Id == rr.RoomId) : null;
+                var rt = rm != null ? roomTypes.FirstOrDefault(x => x.Id == rm.RoomTypeId) : null;
+
+                var phieu = phieuTinhTiens.FirstOrDefault(x => x.DatPhongId == r.Id);
+                var hd = phieu != null ? hoaDons.FirstOrDefault(x => x.PhieuTinhTienId == phieu.Id) : null;
+
+                bool isPaid = (hd != null && hd.TrangThai == "DaThanhToan")
+                           || (phieu != null && phieu.TrangThai == "DaThanhToan");
+
+                decimal totalAmount = 0;
+                if (hd != null && hd.TongTien > 0)
+                {
+                    totalAmount = hd.TongTien;
+                }
+                else if (phieu != null)
+                {
+                    totalAmount = phieu.TongTien;
+                }
+                else
+                {
+                    var soNgay = (r.CheckOutDate.Date - r.CheckInDate.Date).TotalDays;
+                    var soDem = Math.Max(1, (int)Math.Ceiling(soNgay));
+                    if (rm != null)
+                    {
+                        var bg = await _context.BangGias
+                            .AsNoTracking()
+                            .Where(b => b.RoomTypeId == rm.RoomTypeId && b.PricePerNight > 0)
+                            .OrderByDescending(b => b.StartDate)
+                            .FirstOrDefaultAsync();
+                        totalAmount = (bg?.PricePerNight ?? 500000m) * soDem;
+                    }
+                    else
+                    {
+                        totalAmount = 500000m * soDem;
+                    }
+                }
+
+                result.Add(new
+                {
+                    id = r.Id,
+                    reservationCode = r.ReservationCode,
+                    guestId = r.GuestId,
+                    bookingDate = r.BookingDate,
+                    checkInDate = r.CheckInDate,
+                    checkOutDate = r.CheckOutDate,
+                    status = r.Status,
+                    numberOfGuests = r.NumberOfGuests,
+                    notes = r.Notes,
+                    roomId = rm?.Id,
+                    roomNumber = rm?.RoomNumber ?? "Chưa gán phòng",
+                    roomTypeName = rt?.Name ?? "Tiêu chuẩn",
+                    totalAmount = totalAmount,
+                    isPaid = isPaid,
+                    paymentStatus = isPaid ? "DaThanhToan" : "ChuaThanhToan",
+                    hoaDonId = hd?.Id,
+                    soHoaDon = hd?.SoHoaDon
+                });
+            }
+
+            return Ok(result);
+        }
+
+        // =========================================================
+        // POST: api/Reservation/my-reservations/{id}/pay
+        // Khách hàng xác nhận thanh toán đơn đặt phòng (Xác nhận là thành công)
+        // =========================================================
+        [HttpPost("my-reservations/{id}/pay")]
+        public async Task<IActionResult> PayMyReservation(int id, [FromBody] PayReservationRequest? request)
+        {
+            var guestId = GetCurrentGuestId();
+            if (!guestId.HasValue)
+            {
+                return BadRequest(new
+                {
+                    message = "Tài khoản hiện tại chưa được liên kết với hồ sơ khách hàng."
+                });
+            }
+
+            var reservation = await _context.Reservations
+                .FirstOrDefaultAsync(r => r.Id == id && r.GuestId == guestId.Value);
+
+            if (reservation == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy đơn đặt phòng của bạn."
+                });
+            }
+
+            if (reservation.Status == ReservationStatus.DaHuy)
+            {
+                return BadRequest(new
+                {
+                    message = "Đơn đặt phòng này đã bị hủy, không thể thực hiện thanh toán."
+                });
+            }
+
+            // 1. Lấy thông tin phòng liên quan (nếu có)
+            var resRoom = await _context.ReservationRooms
+                .FirstOrDefaultAsync(rr => rr.ReservationId == id);
+            Room? room = null;
+            if (resRoom != null)
+            {
+                room = await _context.Rooms.FindAsync(resRoom.RoomId);
+            }
+
+            // 2. Tìm hoặc tự động tạo Phiếu tính tiền
+            var phieu = await _context.PhieuTinhTiens
+                .FirstOrDefaultAsync(p => p.DatPhongId == id);
+
+            if (phieu == null)
+            {
+                var soNgay = (reservation.CheckOutDate.Date - reservation.CheckInDate.Date).TotalDays;
+                var soDem = Math.Max(1, (int)Math.Ceiling(soNgay));
+                decimal tienPhong = 0;
+
+                if (room != null)
+                {
+                    for (int i = 0; i < soDem; i++)
+                    {
+                        var ngay = reservation.CheckInDate.Date.AddDays(i);
+                        var bg = await _context.BangGias
+                            .Where(b => b.RoomTypeId == room.RoomTypeId && b.StartDate.Date <= ngay && b.EndDate.Date >= ngay)
+                            .OrderByDescending(b => b.StartDate)
+                            .FirstOrDefaultAsync();
+
+                        if (bg != null && bg.PricePerNight > 0)
+                        {
+                            tienPhong += bg.PricePerNight;
+                        }
+                    }
+
+                    if (tienPhong == 0)
+                    {
+                        var anyBg = await _context.BangGias
+                            .FirstOrDefaultAsync(b => b.RoomTypeId == room.RoomTypeId && b.PricePerNight > 0);
+                        tienPhong = (anyBg?.PricePerNight ?? 500000m) * soDem;
+                    }
+                }
+                else
+                {
+                    tienPhong = 500000m * soDem;
+                }
+
+                phieu = new PhieuTinhTien
+                {
+                    DatPhongId = id,
+                    NgayTao = DateTime.Now,
+                    TienPhong = tienPhong,
+                    TienDichVu = 0,
+                    TongTien = tienPhong,
+                    TrangThai = "DaThanhToan"
+                };
+                _context.PhieuTinhTiens.Add(phieu);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                phieu.TrangThai = "DaThanhToan";
+            }
+
+            // 3. Tìm hoặc tự động tạo Hóa đơn
+            var hoaDon = await _context.HoaDons
+                .FirstOrDefaultAsync(h => h.PhieuTinhTienId == phieu.Id);
+
+            if (hoaDon == null)
+            {
+                hoaDon = new HoaDon
+                {
+                    PhieuTinhTienId = phieu.Id,
+                    SoHoaDon = "HD" + DateTime.Now.ToString("yyMMddHHmmss"),
+                    NgayLap = DateTime.Now,
+                    TienTruocThue = phieu.TongTien,
+                    TienVAT = 0,
+                    TongTien = phieu.TongTien,
+                    TrangThai = "DaThanhToan"
+                };
+                _context.HoaDons.Add(hoaDon);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                hoaDon.TrangThai = "DaThanhToan";
+            }
+
+            // 4. Tạo bản ghi ThanhToan
+            var method = string.IsNullOrWhiteSpace(request?.PaymentMethod)
+                ? "Xác nhận trực tuyến"
+                : request.PaymentMethod;
+
+            var thanhToan = new ThanhToan
+            {
+                HoaDonId = hoaDon.Id,
+                NgayThanhToan = DateTime.Now,
+                SoTien = hoaDon.TongTien,
+                PhuongThuc = method,
+                TrangThai = "DaThanhToan"
+            };
+            _context.ThanhToans.Add(thanhToan);
+
+            // 5. Cập nhật trạng thái đơn đặt phòng nếu đang ở trạng thái Chờ xác nhận
+            if (reservation.Status == ReservationStatus.ChoXacNhan)
+            {
+                reservation.Status = ReservationStatus.DaXacNhan;
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Xác nhận thanh toán thành công!",
+                reservationId = id,
+                reservationCode = reservation.ReservationCode,
+                totalAmount = hoaDon.TongTien,
+                paymentMethod = thanhToan.PhuongThuc
+            });
         }
 
         // =========================================================
@@ -504,5 +761,10 @@ namespace HotelManagementSystem.API.Controllers
                 reservation
             });
         }
+    }
+
+    public class PayReservationRequest
+    {
+        public string? PaymentMethod { get; set; } = "Xác nhận trực tuyến";
     }
 }

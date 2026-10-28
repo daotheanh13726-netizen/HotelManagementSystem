@@ -40,7 +40,8 @@
         khach: [
             { text: "Trang chủ", href: "khach.html" },
             { text: "Xem phòng", href: "phong.html" },
-            { text: "Đặt phòng", href: "khach.html#dat-phong" }
+            { text: "Đặt phòng", href: "khach.html#dat-phong" },
+            { text: "Dịch vụ khách sạn", href: "khach.html#dich-vu" }
         ]
     };
 
@@ -98,92 +99,67 @@
 
         // 2. Render lại danh sách menu theo quyền
         menuUl.innerHTML = menuList.map(item => {
-            const baseHref = item.href.split("#")[0].toLowerCase();
-            const isActive = baseHref === currentPage;
-            return `<li class="${isActive ? "active" : ""}"><a href="${item.href}">${item.text}</a></li>`;
+            const isCurrent = currentPage === item.href.toLowerCase();
+            return `<li class="${isCurrent ? "active" : ""}"><a href="${item.href}">${item.text}</a></li>`;
         }).join("");
 
-        // 3. Đảm bảo nút Quay lại & Đăng xuất
-        let actions = sidebar.querySelector(".sidebar-actions");
-        if (!actions) {
-            actions = document.createElement("div");
-            actions.className = "sidebar-actions";
-            actions.innerHTML = `
-                <button type="button" id="backButton">← Quay lại</button>
-                <button type="button" id="logoutButton">Đăng xuất</button>
-            `;
-            sidebar.appendChild(actions);
+        // 3. Khởi tạo sự kiện nút Đăng xuất
+        const logoutBtn = document.getElementById("logoutButton");
+        if (logoutBtn) {
+            logoutBtn.onclick = function (e) {
+                e.preventDefault();
+                if (typeof logoutUser === "function") {
+                    logoutUser();
+                } else {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = "dangnhap.html";
+                }
+            };
         }
 
-        // Sự kiện nút Quay lại
+        // 4. Khởi tạo sự kiện nút Quay lại
         const backBtn = document.getElementById("backButton");
-        if (backBtn && !backBtn.dataset.listenerAttached) {
-            backBtn.dataset.listenerAttached = "true";
-            backBtn.addEventListener("click", () => {
-                const previousPage = document.referrer;
-                if (previousPage) {
-                    try {
-                        const previousUrl = new URL(previousPage);
-                        if (previousUrl.origin === window.location.origin &&
-                            previousUrl.href !== window.location.href) {
-                            window.history.back();
-                            return;
-                        }
-                    } catch {}
+        if (backBtn) {
+            backBtn.onclick = function (e) {
+                e.preventDefault();
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    // Mặc định quay về dashboard phù hợp với vai trò
+                    const defaultRoutes = {
+                        admin: "admin.html",
+                        letan: "letan.html",
+                        ketoan: "ketoan.html",
+                        khach: "khach.html"
+                    };
+                    window.location.href = defaultRoutes[role] || "index.html";
                 }
+            };
+        }
 
-                const homePages = {
-                    admin: "admin.html",
-                    letan: "letan.html",
-                    ketoan: "ketoan.html",
-                    khach: "khach.html"
-                };
-                window.location.href = homePages[role] || "admin.html";
+        // 5. Cập nhật lời chào tên người dùng trên Header nếu có thẻ
+        const userFullName = localStorage.getItem("fullName") || localStorage.getItem("username");
+        if (userFullName) {
+            const welcomeSelectors = ["#welcomeText", "#adminWelcome", "#userName", ".user-name"];
+            welcomeSelectors.forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const roleLabel = {
+                        admin: "Quản trị viên",
+                        letan: "Nhân viên Lễ tân",
+                        ketoan: "Nhân viên Kế toán",
+                        khach: "Quý khách"
+                    }[role] || "";
+                    el.textContent = `Xin chào, ${userFullName}${roleLabel ? " (" + roleLabel + ")" : ""}`;
+                }
             });
         }
-
-        // Sự kiện Đăng xuất
-        const handleLogout = (e) => {
-            if (e) e.preventDefault();
-            if (!confirm("Bạn có chắc muốn đăng xuất không?")) return;
-
-            ["token", "userId", "guestId", "username", "fullName", "roleName"].forEach(key => localStorage.removeItem(key));
-            window.location.href = "dangnhap.html";
-        };
-
-        const logoutBtn = document.getElementById("logoutButton");
-        if (logoutBtn && !logoutBtn.dataset.listenerAttached) {
-            logoutBtn.dataset.listenerAttached = "true";
-            logoutBtn.addEventListener("click", handleLogout);
-        }
-
-        const logoutLink = document.getElementById("logoutLink");
-        if (logoutLink && !logoutLink.dataset.listenerAttached) {
-            logoutLink.dataset.listenerAttached = "true";
-            logoutLink.addEventListener("click", handleLogout);
-        }
-
-        // Cập nhật tên người dùng trên Header nếu có thẻ hiển thị
-        const fullName = localStorage.getItem("fullName") || localStorage.getItem("username");
-        const welcomeEl = document.getElementById("adminWelcome") || 
-                          document.getElementById("welcomeText") || 
-                          document.querySelector(".header-right span");
-        if (welcomeEl && fullName && (!welcomeEl.textContent || welcomeEl.textContent.trim().toLowerCase().startsWith("xin chào"))) {
-            const roleDisplay = rawRole ? ` (${rawRole})` : "";
-            welcomeEl.textContent = `Xin chào, ${fullName}${roleDisplay}`;
-        }
-
-        console.log(`[Navigation] Vai trò: ${role} | Số mục menu: ${menuList.length} | Trang: ${currentPage}`);
     }
-
-    window.initNavigation = initNavigation;
 
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", initNavigation);
     } else {
         initNavigation();
     }
-
-    // Đảm bảo chạy lại cả khi trình duyệt back/forward (bfcache)
-    window.addEventListener("pageshow", initNavigation);
 })();

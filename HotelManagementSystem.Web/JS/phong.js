@@ -10,13 +10,76 @@ let roomTypes = [];
 let editingRoomId = null;
 
 // ========================================
+// GIẢI MÃ JWT ĐỂ LẤY ROLE
+// ========================================
+
+function parseJwtPayload(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+            atob(base64)
+                .split('')
+                .map(function (c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                })
+                .join('')
+        );
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        return null;
+    }
+}
+
+function getRoleFromToken(token) {
+    var payload = parseJwtPayload(token);
+    if (!payload) return '';
+
+    // ClaimTypes.Role trong .NET tạo ra claim có key là URL dài
+    // hoặc có thể là "role" tùy cấu hình
+    return (
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+        payload['role'] ||
+        payload['roleName'] ||
+        ''
+    ).toString().trim();
+}
+
+// ========================================
 // KHỞI TẠO
 // ========================================
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const roomForm = document.getElementById("roomForm");
+    // Kiểm tra token, chuyển hướng nếu chưa đăng nhập
+    var token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'dangnhap.html';
+        return;
+    }
 
-    roomForm.addEventListener("submit", saveRoom);
+    // Lấy role từ JWT (không tin localStorage.roleName)
+    var roleFromJwt = getRoleFromToken(token);
+    var isAdmin = roleFromJwt.toLowerCase() === 'admin';
+    window.isAdminUser = isAdmin;
+
+    // Hiển thị / ẩn nút "+ Thêm phòng"
+    var btnAddRoom = document.getElementById('btnAddRoom');
+    if (btnAddRoom) {
+        btnAddRoom.style.display = isAdmin ? 'inline-block' : 'none';
+    }
+
+    // Cập nhật lời chào theo tên thực tế
+    var greetingEl = document.getElementById('greetingText');
+    if (greetingEl) {
+        var displayName = localStorage.getItem('fullName') || localStorage.getItem('username') || '';
+        greetingEl.textContent = 'Xin chào, ' + displayName;
+    }
+
+    // Đăng ký sự kiện form
+    var roomForm = document.getElementById("roomForm");
+    if (roomForm) {
+        roomForm.addEventListener("submit", saveRoom);
+    }
 
     document.getElementById("filterStatus")
         .addEventListener("change", renderRooms);
@@ -278,21 +341,25 @@ function renderRooms() {
         statusCell.appendChild(statusSpan);
         row.appendChild(statusCell);
 
+        // Cột thao tác: chỉ hiện nút Sửa/Xóa nếu là Admin
         const actionCell = document.createElement("td");
 
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "btn-edit";
-        editButton.textContent = "Sửa";
-        editButton.addEventListener("click", () => editRoom(id));
+        if (window.isAdminUser) {
+            const editButton = document.createElement("button");
+            editButton.type = "button";
+            editButton.className = "btn-edit";
+            editButton.textContent = "Sửa";
+            editButton.addEventListener("click", () => editRoom(id));
 
-        const deleteButton = document.createElement("button");
-        deleteButton.type = "button";
-        deleteButton.className = "btn-delete";
-        deleteButton.textContent = "Xóa";
-        deleteButton.addEventListener("click", () => deleteRoom(id));
+            const deleteButton = document.createElement("button");
+            deleteButton.type = "button";
+            deleteButton.className = "btn-delete";
+            deleteButton.textContent = "Xóa";
+            deleteButton.addEventListener("click", () => deleteRoom(id));
 
-        actionCell.append(editButton, deleteButton);
+            actionCell.append(editButton, deleteButton);
+        }
+
         row.appendChild(actionCell);
 
         tableBody.appendChild(row);

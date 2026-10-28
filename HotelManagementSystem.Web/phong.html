@@ -7,7 +7,7 @@
 
     <title>Quản lý phòng - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <link rel="stylesheet" href="css/style.css?v=20261028_sienna_v2">
 </head>
 
 <body>
@@ -63,8 +63,8 @@
 
                 <div class="header-right">
 
-                    <span>
-                        Xin chào, Quản trị viên
+                    <span id="greetingText">
+                        Xin chào
                     </span>
 
                 </div>
@@ -89,8 +89,10 @@
                     </div>
 
                     <button
+                        id="btnAddRoom"
                         class="btn-primary"
-                        onclick="openRoomForm()">
+                        onclick="openRoomForm()"
+                        style="display: none;">
                         + Thêm phòng
                     </button>
 

@@ -146,7 +146,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // POST: api/Room
         [HttpPost]
-        [Authorize(Roles = "Admin,Lễ tân")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(Room room)
         {
             if (string.IsNullOrWhiteSpace(room.RoomNumber))
@@ -189,7 +189,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // PUT: api/Room/1
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Lễ tân")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(
             int id,
             Room room)
@@ -249,7 +249,7 @@ namespace HotelManagementSystem.API.Controllers
 
         // DELETE: api/Room/1
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin,Lễ tân")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var room = await _context.Rooms.FindAsync(id);

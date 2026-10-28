@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 
 <head>
@@ -7,7 +7,10 @@
 
     <title>Cổng thông tin Khách hàng - Hệ thống quản lý khách sạn</title>
 
-    <link rel="stylesheet" href="css/style.css?v=3">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css?v=20261028_sienna_v2">
     <style>
         .profile-card {
             background: white;
@@ -42,6 +45,98 @@
         .status-dacheckin { background: #dcfce7; color: #15803d; }
         .status-dacheckout { background: #f1f5f9; color: #475569; }
 
+        /* Badge trạng thái thanh toán */
+        .payment-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .status-paid {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .status-unpaid {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+        /* Nút thanh toán */
+        .btn-pay {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(22, 163, 74, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-pay:hover {
+            background: linear-gradient(135deg, #15803d, #166534);
+            transform: translateY(-1px);
+        }
+        .btn-pay:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Khung thông tin thanh toán trong modal */
+        .payment-info-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 20px;
+        }
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 13.5px;
+            color: #475569;
+        }
+        .payment-row:last-child {
+            border-bottom: none;
+            padding-top: 12px;
+        }
+        .payment-total-amount {
+            font-size: 22px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+
+        .payment-method-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .payment-method-item:hover,
+        .payment-method-item input[type="radio"]:checked ~ span {
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
         /* Modal styling */
         .modal-overlay {
             display: none;
@@ -58,7 +153,7 @@
         .modal-content {
             background: white;
             border-radius: 12px;
-            width: 500px;
+            width: 520px;
             max-width: 90%;
             padding: 24px;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
@@ -102,6 +197,7 @@
                 <li class="active"><a href="khach.html">Trang chủ</a></li>
                 <li><a href="phong.html">Xem phòng</a></li>
                 <li><a href="khach.html#dat-phong">Đặt phòng</a></li>
+                <li><a href="khach.html#dich-vu">Dịch vụ khách sạn</a></li>
             </ul>
 
             <div class="sidebar-actions">
@@ -218,11 +314,11 @@
                             <thead>
                                 <tr>
                                     <th>Mã đặt phòng</th>
-                                    <th>Ngày đặt</th>
+                                    <th>Phòng</th>
                                     <th>Ngày nhận</th>
                                     <th>Ngày trả</th>
                                     <th>Số khách</th>
-                                    <th>Ghi chú</th>
+                                    <th>Tổng tiền</th>
                                     <th>Trạng thái</th>
                                     <th>Thao tác</th>
                                 </tr>
@@ -276,13 +372,55 @@
 
             </section>
 
+
+            <!-- DỊCH VỤ KHÁCH SẠN -->
+            <section class="content-section" id="dich-vu">
+
+                <div class="page-header">
+                    <div>
+                        <h2>Dịch vụ & Tiện ích khách sạn</h2>
+                        <p>Bảng giá niêm yết các dịch vụ của khách sạn phục vụ quý khách trong thời gian lưu trú</p>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px; text-align: center;">STT</th>
+                                    <th>Tên dịch vụ</th>
+                                    <th>Đơn vị tính</th>
+                                    <th style="text-align: right;">Đơn giá niêm yết</th>
+                                    <th>Mô tả chi tiết</th>
+                                    <th style="text-align: center;">Tình trạng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="hotelServiceTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align:center; padding: 2rem; color: #94a3b8;">
+                                        Đang tải danh mục dịch vụ...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-top: 18px; padding: 14px 18px; background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 8px; color: #1e40af; font-size: 13.5px; line-height: 1.6;">
+                        <i class="fa-solid fa-circle-info" style="margin-right: 6px; color: #2563eb;"></i>
+                        <strong>Hướng dẫn sử dụng dịch vụ:</strong> Quý khách có thể chọn nhanh dịch vụ muốn dùng khi <strong>Đặt phòng trực tuyến</strong> ở trên hoặc liên hệ trực tiếp quầy <strong>Lễ tân</strong>. Chi phí dịch vụ sẽ được lễ tân ghi nhận vào phiếu tính tiền và thanh toán khi trả phòng.
+                    </div>
+                </div>
+
+            </section>
+
         </main>
 
     </div>
 
     <!-- MODAL ĐẶT PHÒNG TRỰC TUYẾN -->
     <div class="modal-overlay" id="bookingModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
                 <h3 id="modalRoomTitle">Đặt phòng</h3>
                 <button type="button" class="modal-close" onclick="closeBookingModal()">&times;</button>
@@ -305,9 +443,20 @@
                     <input type="number" id="bookGuests" min="1" max="10" value="1" required>
                 </div>
 
-                <div class="form-group">
+                <!-- LỰA CHỌN DỊCH VỤ ĐI KÈM KHI ĐẶT PHÒNG -->
+                <div class="form-group" style="margin-top: 14px;">
+                    <label style="font-weight: 600; color: #1e293b;">
+                        <i class="fa-solid fa-bell-concierge" style="color: #2563eb; margin-right: 5px;"></i> Chọn dịch vụ đặt trước (tùy chọn)
+                    </label>
+                    <div id="bookingServiceList" style="display: flex; flex-direction: column; gap: 8px; max-height: 150px; overflow-y: auto; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc; margin-top: 6px;">
+                        <span style="color: #64748b; font-size: 13px;">Đang tải danh mục dịch vụ...</span>
+                    </div>
+                    <small style="color: #64748b; margin-top: 4px; display: block;">Dịch vụ đã chọn sẽ được gửi đến Lễ tân kèm đơn đặt phòng để khách sạn chuẩn bị trước.</small>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
                     <label for="bookNotes">Ghi chú yêu cầu đặc biệt</label>
-                    <textarea id="bookNotes" rows="3" placeholder="Ví dụ: phòng tầng cao, giường đơn..."></textarea>
+                    <textarea id="bookNotes" rows="2" placeholder="Ví dụ: phòng tầng cao, đón tại sân bay..."></textarea>
                 </div>
 
                 <div class="profile-actions" style="margin-top: 16px;">
@@ -318,9 +467,72 @@
         </div>
     </div>
 
+    <!-- MODAL XÁC NHẬN THANH TOÁN PHÍA KHÁCH HÀNG -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-credit-card" style="color: #16a34a; margin-right: 8px;"></i> Xác nhận thanh toán</h3>
+                <button type="button" class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            
+            <div class="payment-info-box">
+                <div class="payment-row">
+                    <span>Mã đơn đặt phòng:</span>
+                    <strong id="payModalCode" style="color: #0f172a;">—</strong>
+                </div>
+                <div class="payment-row" id="payModalInvoiceRow" style="display: none;">
+                    <span>Số hóa đơn:</span>
+                    <strong id="payModalInvoiceCode" style="color: #2563eb;">—</strong>
+                </div>
+                <div class="payment-row">
+                    <span>Phòng:</span>
+                    <span id="payModalRoom" style="font-weight: 600;">—</span>
+                </div>
+                <div class="payment-row">
+                    <span>Thời gian lưu trú:</span>
+                    <span id="payModalDates">—</span>
+                </div>
+                <div class="payment-row">
+                    <span style="font-weight: 700; color: #1e293b;">Số tiền cần thanh toán:</span>
+                    <span class="payment-total-amount" id="payModalAmount">0 đ</span>
+                </div>
+            </div>
+
+            <!-- Thông tin tài khoản ngân hàng -->
+            <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 14px 16px; margin-bottom: 18px;">
+                <div style="font-size: 13px; font-weight: 700; color: #166534; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-building-columns"></i> Thông tin tài khoản nhận thanh toán:
+                </div>
+                <div style="display: grid; grid-template-columns: 125px 1fr; gap: 6px 10px; font-size: 13.5px; color: #334155;">
+                    <span style="color: #64748b;">Ngân hàng:</span>
+                    <strong style="color: #1e293b;">MB Bank (Ngân hàng Quân Đội)</strong>
+
+                    <span style="color: #64748b;">Số tài khoản:</span>
+                    <strong style="color: #15803d; font-size: 15px; letter-spacing: 0.5px;">0902 557 185</strong>
+
+                    <span style="color: #64748b;">Tên tài khoản:</span>
+                    <strong style="color: #1e293b; text-transform: uppercase;">HOTEL MANAGEMENT</strong>
+
+                    <span style="color: #64748b;">Nội dung CK:</span>
+                    <strong style="color: #b45309;" id="payModalTransferNote">Thanh toan</strong>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #15803d; font-weight: 500;">
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>Quý khách chỉ cần bấm <strong>Xác nhận thanh toán</strong> để hoàn tất đơn.
+                </div>
+            </div>
+
+            <div class="profile-actions" style="margin-top: 20px;">
+                <button type="button" onclick="closePaymentModal()" style="padding: 10px 20px; border: 1px solid #cbd5e1; background: #f8fafc; color: #334155; border-radius: 8px; cursor: pointer; font-weight: 600;">Hủy</button>
+                <button type="button" class="btn-pay" id="btnConfirmPaySubmit" onclick="confirmPayment()" style="padding: 10px 22px; font-size: 14px; border-radius: 8px;">
+                    <i class="fa-solid fa-check"></i> Xác nhận thanh toán
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/global.js"></script>
-    <script src="js/navigation.js?v=3"></script>
-    <script src="js/khach.js"></script>
+    <script src="js/navigation.js?v=4"></script>
+    <script src="js/khach.js?v=20261028_v9"></script>
 </body>
 
 </html>
